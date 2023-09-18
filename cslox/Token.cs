@@ -6,11 +6,11 @@ namespace Lox
 
         public readonly string Lexeme;
 
-        public object Literal;
+        public object? Literal;
 
         public readonly int Line;
 
-        public Token(TokenType type, string lexeme, object literal, int line)
+        public Token(TokenType type, string lexeme, object? literal, int line)
         {
             TokenType = type;
             Lexeme = lexeme;
