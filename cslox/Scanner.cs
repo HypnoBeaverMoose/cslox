@@ -55,7 +55,7 @@ namespace Lox
                 case '>': AddToken(TryMatch('=') ? TokenType.GREATER_EQUAL : TokenType.GREATER); break;
                 case '<': AddToken(TryMatch('=') ? TokenType.LESS_EQUAL : TokenType.LESS); break;
                 case '=': AddToken(TryMatch('=') ? TokenType.EQUAL_EQUAL : TokenType.EQUAL); break;
-                case '/'
+                case '/':
                     if (TryMatch('/'))
                     {
                         while(Peek() != '\n' && !IsAtEnd)
@@ -63,13 +63,14 @@ namespace Lox
                             Advance();
                         }
                     }
+                    break;
                 default: Lox.Error(line, $"Unexpected character {c}"); break;
             }
         }
 
         private char Peek()
         {
-            
+            return ' ';
         }
 
         private void AddToken(TokenType tokenType)
