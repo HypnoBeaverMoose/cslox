@@ -79,10 +79,11 @@ namespace Lox
                 case '/':
                     if (Match('/'))
                     {
-                        while (Peek() != '\n' && !IsAtEnd)
-                        {
-                            Advance();
-                        }
+                        SlashComment();
+                    }
+                    else if (Match('*'))
+                    {
+                        BlockComment();
                     }
                     else
                     {
@@ -115,6 +116,20 @@ namespace Lox
             }
         }
 
+        private void BlockComment()
+        {
+            while (!(Peek(0) == '*' && Peek(1) == '/'))
+            {
+                if (Advance() == '\n')
+                {
+                    line++;
+                }
+            }
+
+            Advance();
+            Advance();
+        }
+
         private bool IsDigit(char c)
         {
             return char.IsDigit(c);
@@ -145,6 +160,14 @@ namespace Lox
             else
             {
                 AddToken(TokenType.IDENTIFIER);
+            }
+        }
+
+        private void SlashComment()
+        {
+            while (Peek() != '\n' && !IsAtEnd)
+            {
+                Advance();
             }
         }
 
