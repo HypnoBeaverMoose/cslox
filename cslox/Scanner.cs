@@ -4,6 +4,26 @@ namespace Lox
 {
     public class Scanner
     {
+        private readonly Dictionary<string, TokenType> keywords = new()
+        {
+            {"and", TokenType.AND},
+            {"class", TokenType.CLASS},
+            {"else", TokenType.ELSE},
+            {"false", TokenType.FALSE},
+            {"for", TokenType.FOR},
+            {"fun", TokenType.FUN},
+            {"if", TokenType.IF},
+            {"nil", TokenType.NIL},
+            {"or", TokenType.OR},
+            {"print", TokenType.PRINT},
+            {"return", TokenType.RETURN},
+            {"super", TokenType.SUPER},
+            {"this", TokenType.THIS},
+            {"true", TokenType.TRUE},
+            {"var", TokenType.VAR},
+            {"while", TokenType.WHILE},
+        };
+
         private readonly string source;
 
         private readonly List<Token> tokens = new();
@@ -51,26 +71,128 @@ namespace Lox
                 case '+': AddToken(TokenType.PLUS); break;
                 case ';': AddToken(TokenType.SEMICOLON); break;
                 case '*': AddToken(TokenType.STAR); break;
-                case '!': AddToken(TryMatch('=') ? TokenType.BANG_EQUAL : TokenType.BANG); break;
-                case '>': AddToken(TryMatch('=') ? TokenType.GREATER_EQUAL : TokenType.GREATER); break;
-                case '<': AddToken(TryMatch('=') ? TokenType.LESS_EQUAL : TokenType.LESS); break;
-                case '=': AddToken(TryMatch('=') ? TokenType.EQUAL_EQUAL : TokenType.EQUAL); break;
+                case '!': AddToken(Match('=') ? TokenType.BANG_EQUAL : TokenType.BANG); break;
+                case '>': AddToken(Match('=') ? TokenType.GREATER_EQUAL : TokenType.GREATER); break;
+                case '<': AddToken(Match('=') ? TokenType.LESS_EQUAL : TokenType.LESS); break;
+                case '=': AddToken(Match('=') ? TokenType.EQUAL_EQUAL : TokenType.EQUAL); break;
+                //TODO: Separate method here?
                 case '/':
-                    if (TryMatch('/'))
+                    if (Match('/'))
                     {
-                        while(Peek() != '\n' && !IsAtEnd)
+                        while (Peek() != '\n' && !IsAtEnd)
                         {
                             Advance();
                         }
                     }
+                    else
+                    {
+                        AddToken(TokenType.SLASH);
+                    }
                     break;
-                default: Lox.Error(line, $"Unexpected character {c}"); break;
+                //TODO: Can we combine these?
+                case ' ':
+                case '\r':
+                case '\t':
+                    break;
+                case '\n':
+                    line++;
+                    break;
+                case '"': String(); break;
+                default:
+                    if (IsDigit(c))
+                    {
+                        Number();
+                    }
+                    else if (IsLetterOrUnderscore(c))
+                    {
+                        Identifier();
+                    }
+                    else
+                    {
+                        Lox.Error(line, $"Unexpected character {c}");
+                    }
+                    break;
             }
         }
 
-        private char Peek()
+        private bool IsDigit(char c)
         {
-            return ' ';
+            return char.IsDigit(c);
+        }
+
+        private bool IsLetterOrUnderscore(char c)
+        {
+            return char.IsAsciiLetter(c) || c == '_';
+        }
+
+        private bool IsAlphanumeric(char c)
+        {
+            return IsLetterOrUnderscore(c) || IsDigit(c);
+        }
+
+        private void Identifier()
+        {
+            while (IsAlphanumeric(Peek()))
+            {
+                Advance();
+            }
+
+            var value = source.SubstringFromTo(start, current);
+            if (keywords.TryGetValue(value, out TokenType tokenType))
+            {
+                AddToken(tokenType, value);
+            }
+            else
+            {
+                AddToken(TokenType.IDENTIFIER);
+            }
+        }
+
+        private void Number()
+        {
+            while (IsDigit(Peek()))
+            {
+                Advance();
+            }
+
+            if (Peek() == '.' && IsDigit(Peek(1)))
+            {
+                Advance();
+
+                while (IsDigit(Peek()))
+                {
+                    Advance();
+                }
+            }
+
+            AddToken(TokenType.NUMBER, source.SubstringFromTo(start, current));
+        }
+
+        private void String()
+        {
+            while (Peek() != '"' && !IsAtEnd)
+            {
+                if (Advance() == '\n')
+                {
+                    line++;
+                }
+            }
+
+            if (IsAtEnd)
+            {
+                Lox.Error(line, "Unterminated string.");
+                return;
+            }
+
+            Advance();
+
+            var value = source.SubstringFromTo(start + 1, current - 1);
+            AddToken(TokenType.STRING, value);
+        }
+
+        private char Peek(int ahead = 0)
+        {
+            return current + ahead >= source.Length ? '\0' : source[current + ahead];
         }
 
         private void AddToken(TokenType tokenType)
@@ -78,9 +200,9 @@ namespace Lox
             AddToken(tokenType, null);
         }
 
-        private void AddToken(TokenType tokenType, object literal)
+        private void AddToken(TokenType tokenType, object? literal)
         {
-            var lexeme = source.Substring(start, current);
+            var lexeme = source.SubstringFromTo(start, current);
             tokens.Add(new Token(tokenType, lexeme, literal, line));
         }
 
@@ -89,7 +211,7 @@ namespace Lox
             return source[current++];
         }
 
-        private bool TryMatch(char expected)
+        private bool Match(char expected)
         {
             if (!IsAtEnd)
             {
