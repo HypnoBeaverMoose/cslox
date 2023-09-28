@@ -1,23 +1,23 @@
 namespace Lox
 {
-    public class Scanner
-    { 
-        private string _source = "";
+    public static class Scanner
+    {
+        private static string _source = "";
 
-        private readonly List<Token> _tokens = new();
+        private static readonly List<Token> _tokens = new();
 
-        private bool IsAtEnd => _current >= _source.Length;
-        private int _start = 0;
-        private int _current = 0;
-        private int _line = 1;
+        private static bool IsAtEnd => _current >= _source.Length;
+        private static int _start;
+        private static int _current;
+        private static int _line;
 
-        public IReadOnlyList<Token> Tokens => _tokens;
+        public static IReadOnlyList<Token> Tokens => _tokens;
 
-        public IReadOnlyList<Token> Scan(string text)
+        public static IReadOnlyList<Token> Scan(string text)
         {
             _line = 0;
             _source = text;
-            _start = _current  = 0;
+            _start = _current = 0;
 
             while (!IsAtEnd)
             {
@@ -30,7 +30,7 @@ namespace Lox
             return _tokens;
         }
 
-        private void ScanToken()
+        private static void ScanToken()
         {
             char c = Advance();
 
@@ -91,7 +91,7 @@ namespace Lox
             }
         }
 
-        private void BlockComment()
+        private static void BlockComment()
         {
             while (!(Peek(0) == '*' && Peek(1) == '/'))
             {
@@ -105,22 +105,22 @@ namespace Lox
             Advance();
         }
 
-        private bool IsDigit(char c)
+        private static bool IsDigit(char c)
         {
             return char.IsDigit(c);
         }
 
-        private bool IsLetterOrUnderscore(char c)
+        private static bool IsLetterOrUnderscore(char c)
         {
             return char.IsAsciiLetter(c) || c == '_';
         }
 
-        private bool IsAlphanumeric(char c)
+        private static bool IsAlphanumeric(char c)
         {
             return IsLetterOrUnderscore(c) || IsDigit(c);
         }
 
-        private void Identifier()
+        private static void Identifier()
         {
             while (IsAlphanumeric(Peek()))
             {
@@ -138,7 +138,7 @@ namespace Lox
             }
         }
 
-        private void SlashComment()
+        private static void SlashComment()
         {
             while (Peek() != '\n' && !IsAtEnd)
             {
@@ -146,7 +146,7 @@ namespace Lox
             }
         }
 
-        private void Number()
+        private static void Number()
         {
             while (IsDigit(Peek()))
             {
@@ -166,7 +166,7 @@ namespace Lox
             AddToken(TokenType.NUMBER, _source.SubstringFromTo(_start, _current));
         }
 
-        private void String()
+        private static void String()
         {
             while (Peek() != '"' && !IsAtEnd)
             {
@@ -188,28 +188,28 @@ namespace Lox
             AddToken(TokenType.STRING, value);
         }
 
-        private char Peek(int ahead = 0)
+        private static char Peek(int ahead = 0)
         {
             return _current + ahead >= _source.Length ? '\0' : _source[_current + ahead];
         }
 
-        private void AddToken(TokenType tokenType)
+        private static void AddToken(TokenType tokenType)
         {
             AddToken(tokenType, null);
         }
 
-        private void AddToken(TokenType tokenType, object? literal)
+        private static void AddToken(TokenType tokenType, object? literal)
         {
             var lexeme = _source.SubstringFromTo(_start, _current);
             _tokens.Add(new Token(tokenType, lexeme, literal, _line));
         }
 
-        private char Advance()
+        private static char Advance()
         {
             return _source[_current++];
         }
 
-        private bool Match(char expected)
+        private static bool Match(char expected)
         {
             if (!IsAtEnd)
             {
