@@ -1,43 +1,21 @@
-using System.Text.RegularExpressions;
-
 namespace Lox
 {
     public class Scanner
-    {
-        private readonly Dictionary<string, TokenType> keywords = new()
-        {
-            {"and", TokenType.AND},
-            {"class", TokenType.CLASS},
-            {"else", TokenType.ELSE},
-            {"false", TokenType.FALSE},
-            {"for", TokenType.FOR},
-            {"fun", TokenType.FUN},
-            {"if", TokenType.IF},
-            {"nil", TokenType.NIL},
-            {"or", TokenType.OR},
-            {"print", TokenType.PRINT},
-            {"return", TokenType.RETURN},
-            {"super", TokenType.SUPER},
-            {"this", TokenType.THIS},
-            {"true", TokenType.TRUE},
-            {"var", TokenType.VAR},
-            {"while", TokenType.WHILE},
-        };
+    { 
+        private readonly string _source;
 
-        private readonly string source;
+        private readonly List<Token> _tokens = new();
 
-        private readonly List<Token> tokens = new();
+        private bool IsAtEnd => _current >= _source.Length;
+        private int _start = 0;
+        private int _current = 0;
+        private int _line = 1;
 
-        private bool IsAtEnd => current >= source.Length;
-        private int start = 0;
-        private int current = 0;
-        private int line = 1;
-
-        public IReadOnlyList<Token> Tokens => tokens;
+        public IReadOnlyList<Token> Tokens => _tokens;
 
         public Scanner(string text)
         {
-            this.source = text;
+            _source = text;
         }
 
         public IReadOnlyList<Token> ScanTokens()
@@ -46,13 +24,13 @@ namespace Lox
 
             while (!IsAtEnd)
             {
-                start = current;
+                _start = _current;
                 ScanToken();
             }
 
-            tokens.Add(new Token(TokenType.EOF, "", literal: null, line));
+            _tokens.Add(new Token(TokenType.EOF, "", literal: null, line));
 
-            return tokens;
+            return _tokens;
         }
 
         private void ScanToken()
@@ -96,7 +74,7 @@ namespace Lox
                 case '\t':
                     break;
                 case '\n':
-                    line++;
+                    _line++;
                     break;
                 case '"': String(); break;
                 default:
@@ -110,7 +88,7 @@ namespace Lox
                     }
                     else
                     {
-                        Lox.Error(line, $"Unexpected character {c}");
+                        Lox.Error(_line, $"Unexpected character {c}");
                     }
                     break;
             }
@@ -122,7 +100,7 @@ namespace Lox
             {
                 if (Advance() == '\n')
                 {
-                    line++;
+                    _line++;
                 }
             }
 
@@ -152,8 +130,8 @@ namespace Lox
                 Advance();
             }
 
-            var value = source.SubstringFromTo(start, current);
-            if (keywords.TryGetValue(value, out TokenType tokenType))
+            var value = _source.Substring(_start, _current);
+            if (Keywords.TryGetTokenType(value, out TokenType tokenType))
             {
                 AddToken(tokenType, value);
             }
@@ -188,7 +166,7 @@ namespace Lox
                 }
             }
 
-            AddToken(TokenType.NUMBER, source.SubstringFromTo(start, current));
+            AddToken(TokenType.NUMBER, _source.SubstringFromTo(_start, _current));
         }
 
         private void String()
@@ -197,25 +175,25 @@ namespace Lox
             {
                 if (Advance() == '\n')
                 {
-                    line++;
+                    _line++;
                 }
             }
 
             if (IsAtEnd)
             {
-                Lox.Error(line, "Unterminated string.");
+                Lox.Error(_line, "Unterminated string.");
                 return;
             }
 
             Advance();
 
-            var value = source.SubstringFromTo(start + 1, current - 1);
+            var value = _source.SubstringFromTo(_start + 1, _current - 1);
             AddToken(TokenType.STRING, value);
         }
 
         private char Peek(int ahead = 0)
         {
-            return current + ahead >= source.Length ? '\0' : source[current + ahead];
+            return _current + ahead >= _source.Length ? '\0' : _source[_current + ahead];
         }
 
         private void AddToken(TokenType tokenType)
@@ -225,25 +203,25 @@ namespace Lox
 
         private void AddToken(TokenType tokenType, object? literal)
         {
-            var lexeme = source.SubstringFromTo(start, current);
-            tokens.Add(new Token(tokenType, lexeme, literal, line));
+            var lexeme = _source.SubstringFromTo(_start, _current);
+            _tokens.Add(new Token(tokenType, lexeme, literal, _line));
         }
 
         private char Advance()
         {
-            return source[current++];
+            return _source[_current++];
         }
 
         private bool Match(char expected)
         {
             if (!IsAtEnd)
             {
-                if (source[current] != expected)
+                if (_source[_current] != expected)
                 {
                     return false;
                 }
 
-                current++;
+                _current++;
                 return true;
             }
             return false;
