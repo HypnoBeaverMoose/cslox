@@ -2,7 +2,7 @@ namespace Lox
 {
     public class Scanner
     { 
-        private readonly string _source;
+        private string _source = "";
 
         private readonly List<Token> _tokens = new();
 
@@ -13,14 +13,11 @@ namespace Lox
 
         public IReadOnlyList<Token> Tokens => _tokens;
 
-        public Scanner(string text)
+        public IReadOnlyList<Token> Scan(string text)
         {
+            _line = 0;
             _source = text;
-        }
-
-        public IReadOnlyList<Token> ScanTokens()
-        {
-            int line = 0;
+            _start = _current  = 0;
 
             while (!IsAtEnd)
             {
@@ -28,7 +25,7 @@ namespace Lox
                 ScanToken();
             }
 
-            _tokens.Add(new Token(TokenType.EOF, "", literal: null, line));
+            _tokens.Add(new Token(TokenType.EOF, "", literal: null, _line));
 
             return _tokens;
         }

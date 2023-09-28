@@ -50,8 +50,7 @@ namespace Lox
 
         private static void Run(string text)
         {
-            var scanner = new Scanner(text);
-            var tokens = scanner.ScanTokens();
+            var tokens = new Scanner().Scan(text);
             foreach (var token in tokens)
             {
                 Console.WriteLine(token);
