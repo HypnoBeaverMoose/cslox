@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "cslox", "cslox\cslox.csproj", "{73C5A6C6-351D-4922-961D-2C1A632D5F93}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "cslox", "cslox\cslox.csproj", "{F35CFF6F-EC13-4EE8-B40C-60BE1767C0B4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "astgen", "astgen\astgen.csproj", "{D78C3DE4-FE1E-46C7-B949-A17B8D976565}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -14,9 +16,13 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{73C5A6C6-351D-4922-961D-2C1A632D5F93}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{73C5A6C6-351D-4922-961D-2C1A632D5F93}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{73C5A6C6-351D-4922-961D-2C1A632D5F93}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{73C5A6C6-351D-4922-961D-2C1A632D5F93}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F35CFF6F-EC13-4EE8-B40C-60BE1767C0B4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F35CFF6F-EC13-4EE8-B40C-60BE1767C0B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F35CFF6F-EC13-4EE8-B40C-60BE1767C0B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F35CFF6F-EC13-4EE8-B40C-60BE1767C0B4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D78C3DE4-FE1E-46C7-B949-A17B8D976565}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D78C3DE4-FE1E-46C7-B949-A17B8D976565}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D78C3DE4-FE1E-46C7-B949-A17B8D976565}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D78C3DE4-FE1E-46C7-B949-A17B8D976565}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
