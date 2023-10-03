@@ -29,6 +29,13 @@ namespace ASTGen
             tw.WriteLine("{");
             tw.WriteLine($"    public abstract class {baseClassName}");
             tw.WriteLine("    {");
+
+            tw.WriteLine();
+            tw.WriteLine("        public abstract T Accept<T>(Visitor<T> visitor);");
+            tw.WriteLine();
+
+            DefineVisitor(tw, baseClassName, types.Select(t => t.Split(':')[0].Trim()).ToArray());
+
             foreach (var type in types)
             {
                 var split = type.Split(':', ',');
@@ -40,6 +47,22 @@ namespace ASTGen
             tw.Close();
         }
 
+        public static void DefineVisitor(TextWriter writer, string baseClassName, string[] types)
+        {
+            writer.WriteLine("        public interface Visitor<T>");
+            writer.WriteLine("        {");
+
+            foreach (var type in types)
+            {
+                var trimmedType = type.Trim();
+                writer.WriteLine($"            T Visit{trimmedType}({trimmedType} {baseClassName.ToLower()});");
+                writer.WriteLine();
+            }
+
+            writer.WriteLine("        }");
+            writer.WriteLine();
+        }
+
         public static void DefineType(TextWriter writer, string baseClassName, string className, string[] fields)
         {
             writer.WriteLine($"        public class {className} : {baseClassName}");
@@ -47,7 +70,14 @@ namespace ASTGen
             foreach (var field in fields)
             {
                 writer.WriteLine($"            public {field.Trim()};");
+                writer.WriteLine();
             }
+
+            writer.WriteLine("            public override T Accept<T>(Visitor<T> visitor)");
+            writer.WriteLine("            {");
+            writer.WriteLine($"                return visitor.Visit{className}(this);");
+            writer.WriteLine("            }");
+
             writer.WriteLine("        }");
             writer.WriteLine();
         }
