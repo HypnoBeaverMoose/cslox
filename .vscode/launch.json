@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": ".NET Core Launch (console)",
+            "name": "lox",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
@@ -15,7 +15,17 @@
             "console": "integratedTerminal",
             "stopAtEntry": false
         },
-        
+        {
+            "name": "astgen",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/astgen/bin/Debug/net7.0/astgen.dll",
+            "args": ["../cslox"],
+            "cwd": "${workspaceFolder}/astgen",
+            "console": "integratedTerminal",
+            "stopAtEntry": false
+        },
         {
             "name": ".NET Core Attach",
             "type": "coreclr",
