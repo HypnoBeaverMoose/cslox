@@ -13,12 +13,12 @@ namespace Lox
 
         public static IReadOnlyList<Token> Tokens => _tokens;
 
-        public static IReadOnlyList<Token> Scan(string text)
+        public static List<Token> Scan(string text)
         {
             _line = 0;
             _source = text;
             _start = _current = 0;
-
+            _tokens.Clear();
             while (!IsAtEnd)
             {
                 _start = _current;
@@ -27,7 +27,7 @@ namespace Lox
 
             _tokens.Add(new Token(TokenType.EOF, "", literal: null, _line));
 
-            return _tokens;
+            return new List<Token>(_tokens);
         }
 
         private static void ScanToken()

@@ -1,3 +1,5 @@
+using System.Runtime.Serialization;
+
 namespace Lox
 {
     public class Parser
@@ -9,6 +11,18 @@ namespace Lox
         public Parser(List<Token> tokens)
         {
             _tokens = new List<Token>(tokens);
+        }
+
+        public Expr? Parse()
+        {
+            try
+            {
+                return Expression();
+            }
+            catch (ParsingException)
+            {
+                return null;
+            }
         }
 
         private Expr Expression()
@@ -34,7 +48,7 @@ namespace Lox
             while (Match(TokenType.GREATER, TokenType.GREATER_EQUAL, TokenType.LESS, TokenType.LESS_EQUAL))
             {
                 var token = Previous();
-                var right = Comparison();
+                var right = Term();
                 expr = new Expr.Binary { Left = expr, Operator = token, Right = right };
             }
             return expr;
@@ -46,7 +60,7 @@ namespace Lox
             while (Match(TokenType.MINUS, TokenType.PLUS))
             {
                 var token = Previous();
-                var right = Comparison();
+                var right = Factor();
                 expr = new Expr.Binary { Left = expr, Operator = token, Right = right };
             }
             return expr;
@@ -58,7 +72,7 @@ namespace Lox
             while (Match(TokenType.SLASH, TokenType.STAR))
             {
                 var token = Previous();
-                var right = Comparison();
+                var right = Unary();
                 expr = new Expr.Binary { Left = expr, Operator = token, Right = right };
             }
             return expr;
@@ -101,12 +115,24 @@ namespace Lox
                 Consume(TokenType.RIGHT_PAREN, "Expect ')' after expression");
                 return new Expr.Grouping { Expression = expression };
             }
-            throw new Exception();//TODO;
+
+            throw Error(Peek(), "Expect expression");
         }
 
-        private void Consume(TokenType type, string error)
+        private Token Consume(TokenType type, string message)
         {
-            //TODO:
+            if (Check(type))
+            {
+                return Advance();
+            }
+
+            throw Error(Peek(), message);
+        }
+
+        private Exception Error(Token token, string message)
+        {
+            Lox.Error(token, message);
+            return new ParsingException();
         }
 
         //TODO: Rename to MatchAny, Return (bool, Token)
@@ -147,5 +173,24 @@ namespace Lox
 
         private Token Previous() => _tokens[_current - 1];
 
+        [Serializable]
+        public class ParsingException : Exception
+        {
+            public ParsingException()
+            {
+            }
+
+            public ParsingException(string? message) : base(message)
+            {
+            }
+
+            public ParsingException(string? message, Exception? innerException) : base(message, innerException)
+            {
+            }
+
+            protected ParsingException(SerializationInfo info, StreamingContext context) : base(info, context)
+            {
+            }
+        }
     }
 }
