@@ -27,7 +27,19 @@ namespace Lox
 
         private Expr Expression()
         {
-            return Equality();
+            return Comma();
+        }
+
+        private Expr Comma()
+        {
+            var expr = Equality();
+            while (Match(TokenType.COMMA))
+            {
+                var token = Previous();
+                var right = Equality();
+                expr = new Expr.Binary { Left = expr, Operator = token, Right = right };
+            }
+            return expr;
         }
 
         private Expr Equality()
