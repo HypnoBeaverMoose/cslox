@@ -127,7 +127,7 @@ namespace Lox
                 Advance();
             }
 
-            var value = _source.Substring(_start, _current);
+            var value = _source.SubstringFromTo(_start, _current);
             if (Keywords.TryGetTokenType(value, out TokenType tokenType))
             {
                 AddToken(tokenType, value);
