@@ -7,6 +7,8 @@ namespace Lox
 
         public interface Visitor<T>
         {
+            T VisitTernary(Ternary expr);
+
             T VisitBinary(Binary expr);
 
             T VisitGrouping(Grouping expr);
@@ -15,6 +17,22 @@ namespace Lox
 
             T VisitUnary(Unary expr);
 
+        }
+
+        public class Ternary : Expr
+        {
+            public Expr Condition;
+
+            public Token Operator;
+
+            public Expr Left;
+
+            public Expr Right;
+
+            public override T Accept<T>(Visitor<T> visitor)
+            {
+                return visitor.VisitTernary(this);
+            }
         }
 
         public class Binary : Expr

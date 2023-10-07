@@ -32,12 +32,28 @@ namespace Lox
 
         private Expr Comma()
         {
-            var expr = Equality();
+            var expr = Ternary();
             while (Match(TokenType.COMMA))
             {
                 var token = Previous();
-                var right = Equality();
+                var right = Ternary();
                 expr = new Expr.Binary { Left = expr, Operator = token, Right = right };
+            }
+            return expr;
+        }
+
+        private Expr Ternary()
+        {
+            var expr = Equality();
+            if (Match(TokenType.QUESTION))
+            {
+                var token = Previous();
+                var left = Ternary();
+
+                Consume(TokenType.COLON, "Expected ':'");
+
+                var right = Ternary();
+                expr = new Expr.Ternary { Condition = expr, Operator = token, Left = left, Right = right };
             }
             return expr;
         }

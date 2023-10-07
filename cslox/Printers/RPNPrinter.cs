@@ -29,6 +29,11 @@ namespace Lox
             return RPN(expr.Operator.Lexeme, expr.Right);
         }
 
+        public string VisitTernary(Expr.Ternary expr)
+        {
+            return RPN(expr.Operator.Lexeme, expr.Condition, expr.Left, expr.Right);
+        }
+
         private string RPN(string name, params Expr[] exprs)
         {
             StringBuilder builder = new();
