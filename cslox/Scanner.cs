@@ -164,8 +164,8 @@ namespace Lox
                     Advance();
                 }
             }
-
-            AddToken(TokenType.NUMBER, _source.SubstringFromTo(_start, _current));
+            var num = double.Parse(_source.SubstringFromTo(_start, _current));
+            AddToken(TokenType.NUMBER, num);
         }
 
         private static void String()

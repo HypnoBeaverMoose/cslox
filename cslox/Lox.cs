@@ -5,6 +5,7 @@ namespace Lox
     public static class Lox
     {
         private static bool hadError;
+        private static bool hadRuntimeError = false;
 
         public static void Main(string[] args)
         {
@@ -44,7 +45,11 @@ namespace Lox
             Run(System.IO.File.ReadAllText(filename));
             if (hadError)
             {
-                System.Environment.Exit(64);
+                System.Environment.Exit(65);
+            }
+            if (hadRuntimeError)
+            {
+                System.Environment.Exit(70);
             }
         }
 
@@ -53,9 +58,13 @@ namespace Lox
             var tokens = Scanner.Scan(text);
             var expression = new Parser(tokens).Parse();
 
-            if (!hadError)
+            if (!hadError && expression != null)
             {
-                Console.Write(new ASTPrinter().Print(expression));
+                var result = new Interpreter().Interpret(expression);
+                if (!hadRuntimeError)
+                {
+                    Console.WriteLine(result?.ToString());
+                }
             }
         }
 
@@ -74,6 +83,12 @@ namespace Lox
         {
             Console.Error.WriteLine($"[line {line} ] Error {where} + : {message}");
             hadError = true;
+        }
+
+        internal static void RuntimeError(Interpreter.RuntimeException re)
+        {
+            Console.Error.WriteLine(re.Message + $"\n [line{re.Token.Line}]");
+            hadRuntimeError = true;
         }
     }
 }
