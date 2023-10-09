@@ -21,6 +21,13 @@ namespace ASTGen
                 "Literal : object? Value",
                 "Unary : Token Operator, Expr Right",
             });
+
+            DefineAST(outputDir, "Stmt", 
+            new string[] 
+            {
+                "Expression : Expr Expr",
+                "Print : Expr Expr",
+            });
         }
 
         public static void DefineAST(string outputDir, string baseClassName, IEnumerable<string> types)
