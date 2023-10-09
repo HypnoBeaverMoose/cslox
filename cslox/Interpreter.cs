@@ -112,6 +112,10 @@ namespace Lox
                     {
                         return string.Concat(leftString, rightString);
                     }
+                    else if(leftString != null || rightString != null)
+                    {
+                        return string.Concat(left, right);
+                    }
                     throw new RuntimeException(expr.Operator, "Operands must be numbers or strings");
                 case TokenType.SLASH:
                     return TryCast<double>(expr.Operator, left) / TryCast<double>(expr.Operator, right);
