@@ -61,7 +61,8 @@ namespace Lox
 
         public class Literal : Expr
         {
-            public Object Value;
+            
+            public object? Value;
 
             public override T Accept<T>(Visitor<T> visitor)
             {
