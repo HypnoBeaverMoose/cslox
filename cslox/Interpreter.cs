@@ -3,7 +3,7 @@ using System.Text;
 
 namespace Lox
 {
-    public class Interpreter : Expr.Visitor<object>
+    public class Interpreter : Expr.Visitor<object?>
     {
         public object? Interpret(Expr expression)
         {
@@ -19,17 +19,17 @@ namespace Lox
 
         }
 
-        public object VisitLiteral(Expr.Literal expr)
+        public object? VisitLiteral(Expr.Literal expr)
         {
             return expr.Value;
         }
 
-        public object VisitGrouping(Expr.Grouping expr)
+        public object? VisitGrouping(Expr.Grouping expr)
         {
             return Evaluate(expr);
         }
 
-        public object VisitUnary(Expr.Unary expr)
+        public object? VisitUnary(Expr.Unary expr)
         {
             var result = Evaluate(expr);
             switch (expr.Operator.TokenType)
@@ -43,45 +43,86 @@ namespace Lox
             }
         }
 
-        public object VisitBinary(Expr.Binary expr)
+        public object? VisitBinary(Expr.Binary expr)
         {
             var left = Evaluate(expr.Left);
             var right = Evaluate(expr.Right);
 
+            var leftNum = left as double?;
+            var rightNum = right as double?;
+            var leftString = left as string;
+            var rightString = right as string;
+
+
+            var bothAreStrings = leftString != null && rightString != null;
+            var bothAreNumbers = leftNum != null && rightNum != null;
+
             switch (expr.Operator.TokenType)
             {
                 case TokenType.GREATER:
-                    return TryCast<double>(expr.Operator, left) > TryCast<double>(expr.Operator, right);
+                    if (bothAreNumbers)
+                    {
+                        return leftNum > rightNum;
+                    }
+                    else if (bothAreStrings)
+                    {
+                        return string.Compare(leftString, rightString) == 1;
+                    }
+                    throw new RuntimeException(expr.Operator, "Operands must be numbers or strings");
                 case TokenType.LESS:
-                    return TryCast<double>(expr.Operator, left) < TryCast<double>(expr.Operator, right);
+                    if (bothAreNumbers)
+                    {
+                        return leftNum < rightNum;
+                    }
+                    else if (bothAreStrings)
+                    {
+                        return string.Compare(leftString, rightString) == -1;
+                    }
+                    throw new RuntimeException(expr.Operator, "Operands must be numbers or strings");
                 case TokenType.GREATER_EQUAL:
-                    return TryCast<double>(expr.Operator, left) >= TryCast<double>(expr.Operator, right);
+                    if (bothAreNumbers)
+                    {
+                        return leftNum >= rightNum;
+                    }
+                    else if (bothAreStrings)
+                    {
+                        return string.Compare(leftString, rightString) > -1;
+                    }
+                    throw new RuntimeException(expr.Operator, "Operands must be numbers or strings");
                 case TokenType.LESS_EQUAL:
-                    return TryCast<double>(expr.Operator, left) <= TryCast<double>(expr.Operator, right);
+                    if (bothAreNumbers)
+                    {
+                        return leftNum <= rightNum;
+                    }
+                    else if (bothAreStrings)
+                    {
+                        return string.Compare(leftString, rightString) < 1;
+                    }
+                    throw new RuntimeException(expr.Operator, "Operands must be numbers or strings");
                 case TokenType.EQUAL_EQUAL:
                     return IsEqual(left, right);
                 case TokenType.MINUS:
                     return TryCast<double>(expr.Operator, left) - TryCast<double>(expr.Operator, right);
                 case TokenType.PLUS:
-                    if (left is double leftNum && right is double rightNum)
+                    if (bothAreNumbers)
                     {
                         return leftNum + rightNum;
                     }
-                    else if (left is string && right is string)
+                    else if (bothAreStrings)
                     {
-                        return string.Concat(left, right);
+                        return string.Concat(leftString, rightString);
                     }
                     throw new RuntimeException(expr.Operator, "Operands must be numbers or strings");
                 case TokenType.SLASH:
-                    return (double)left / (double)right;
+                    return TryCast<double>(expr.Operator, left) / TryCast<double>(expr.Operator, right);
                 case TokenType.STAR:
-                    return (double)left * (double)right;
+                    return TryCast<double>(expr.Operator, left) * TryCast<double>(expr.Operator, right); ;
                 default:
                     return null;
             }
         }
 
-        public object VisitTernary(Expr.Ternary expr)
+        public object? VisitTernary(Expr.Ternary expr)
         {
             var condition = IsTruthy(Evaluate(expr.Condition));
             var left = Evaluate(expr.Left);
@@ -90,22 +131,22 @@ namespace Lox
             return condition ? left : right;
         }
 
-        private object Evaluate(Expr expr)
+        private object? Evaluate(Expr expr)
         {
             return expr.Accept(this);
         }
 
-        private bool IsTruthy(object obj)
+        private bool IsTruthy(object? obj)
         {
             return obj is bool truthVal ? truthVal : false;
         }
 
-        private bool IsEqual(object left, object right)
+        private bool IsEqual(object? left, object? right)
         {
             return left == null ? right == null : left.Equals(right);
         }
 
-        private T TryCast<T>(Token op, object operand)
+        private T TryCast<T>(Token op, object? operand)
         {
             if (operand is T result)
             {
