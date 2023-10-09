@@ -112,13 +112,18 @@ namespace Lox
                     {
                         return string.Concat(leftString, rightString);
                     }
-                    else if(leftString != null || rightString != null)
+                    else if (leftString != null || rightString != null)
                     {
                         return string.Concat(left, right);
                     }
                     throw new RuntimeException(expr.Operator, "Operands must be numbers or strings");
                 case TokenType.SLASH:
-                    return TryCast<double>(expr.Operator, left) / TryCast<double>(expr.Operator, right);
+                    var divResult = TryCast<double>(expr.Operator, left) / TryCast<double>(expr.Operator, right);
+                    if (double.IsInfinity(divResult))
+                    {
+                        throw new RuntimeException(expr.Operator, "Division by zero");
+                    }
+                    return divResult;
                 case TokenType.STAR:
                     return TryCast<double>(expr.Operator, left) * TryCast<double>(expr.Operator, right); ;
                 default:
