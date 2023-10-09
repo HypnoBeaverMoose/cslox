@@ -13,16 +13,47 @@ namespace Lox
             _tokens = new List<Token>(tokens);
         }
 
-        public Expr? Parse()
+        public List<Stmt> Parse()
         {
+            var statements = new List<Stmt>();
             try
             {
-                return Expression();
+                while (!_isAtEnd)
+                {
+                    statements.Add(Statement());
+                }
             }
-            catch (ParsingException)
+            catch(ParsingException)
             {
-                return null;
             }
+
+            return statements;
+        }
+
+        private Stmt Statement()
+        {
+            if (Match(TokenType.PRINT))
+            {
+                return PrintStatement();
+            }
+            else
+            {
+                return ExpressionStatement();
+            }
+        }
+
+        private Stmt ExpressionStatement()
+        {
+            var expression = Expression();
+            Consume(TokenType.SEMICOLON, "; expected");
+            return new Stmt.Expression { Expr = expression };
+        }
+
+        private Stmt PrintStatement()
+        {
+            var expression = Expression();
+            Consume(TokenType.SEMICOLON, "; expected");
+            return new Stmt.Print { Expr = expression };
         }
 
         private Expr Expression()

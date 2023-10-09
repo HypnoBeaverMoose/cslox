@@ -6,6 +6,7 @@ namespace Lox
     {
         private static bool hadError;
         private static bool hadRuntimeError = false;
+        private static Interpreter _interpreter = new();
 
         public static void Main(string[] args)
         {
@@ -56,15 +57,11 @@ namespace Lox
         private static void Run(string text)
         {
             var tokens = Scanner.Scan(text);
-            var expression = new Parser(tokens).Parse();
+            var statements = new Parser(tokens).Parse();
 
-            if (!hadError && expression != null)
+            if (!hadError)
             {
-                var result = new Interpreter().Interpret(expression);
-                if (!hadRuntimeError)
-                {
-                    Console.WriteLine(result?.ToString());
-                }
+                _interpreter.Interpret(statements);
             }
         }
 

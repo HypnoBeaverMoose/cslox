@@ -3,20 +3,39 @@ using System.Text;
 
 namespace Lox
 {
-    public class Interpreter : Expr.Visitor<object?>
+    public class Interpreter : Expr.Visitor<object?>, Stmt.Visitor<object?>
     {
-        public object? Interpret(Expr expression)
+        public void Interpret(IReadOnlyList<Stmt> statements)
         {
             try
             {
-                return Evaluate(expression);
+                foreach (var statement in statements)
+                {
+                    Execute(statement);
+                }
             }
             catch (RuntimeException re)
             {
                 Lox.RuntimeError(re);
             }
-            return null;
+        }
 
+        private void Execute(Stmt statement)
+        {
+            statement.Accept(this);
+        }
+
+        public object? VisitExpression(Stmt.Expression stmt)
+        {
+            Evaluate(stmt.Expr);
+            return null;
+        }
+
+        public object? VisitPrint(Stmt.Print stmt)
+        {
+            var result = Evaluate(stmt.Expr);
+            Console.WriteLine(result?.ToString());
+            return null;
         }
 
         public object? VisitLiteral(Expr.Literal expr)
