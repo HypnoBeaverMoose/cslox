@@ -16,18 +16,41 @@ namespace Lox
         public List<Stmt> Parse()
         {
             var statements = new List<Stmt>();
-            try
+            while (!_isAtEnd)
             {
-                while (!_isAtEnd)
-                {
-                    statements.Add(Statement());
-                }
-            }
-            catch(ParsingException)
-            {
+                statements.Add(Declaration());
             }
 
             return statements;
+        }
+        private Stmt Declaration()
+        {
+            try
+            {
+                if (Match(TokenType.VAR))
+                {
+                    return VariableDeclaration()
+                }
+                else
+                {
+                    return Statement();
+                }
+            }
+            catch (ParsingException)
+            {
+                return null;
+            }
+        }
+
+        private Stmt VariableDeclaration()
+        {
+            var name = Consume(TokenType.IDENTIFIER, "Expect variable name");
+
+            Expr? initializer = Match(TokenType.EQUAL) ? Expression() : null;
+
+            Consume(TokenType.SEMICOLON, "Expect ';' after variable declaration");
+
+            return new Stmt.Var { Name = name, Initializer = initializer };
         }
 
         private Stmt Statement()
@@ -165,6 +188,8 @@ namespace Lox
                     case TokenType.NUMBER:
                     case TokenType.STRING:
                         return new Expr.Literal { Value = token.Literal };
+                    case TokenType.IDENTIFIER:
+                        return new Expr.Variable { Name = token };
                 }
             }
 
