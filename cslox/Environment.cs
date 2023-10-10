@@ -2,7 +2,20 @@ namespace Lox
 {
     public class Environment
     {
+        private readonly Environment? _parent;
         private readonly Dictionary<string, object?> values = new();
+
+        public Environment? parent => _parent;
+
+        public Environment()
+        {
+            _parent = null;
+        }
+
+        public Environment(Environment parent)
+        {
+            _parent = parent;
+        }
 
         public void Define(string name, object? value)
         {
@@ -11,19 +24,28 @@ namespace Lox
 
         public object? Get(Token name)
         {
-            if(values.TryGetValue(name.Lexeme, out object? value))
+            if (values.TryGetValue(name.Lexeme, out object? value))
             {
                 return value;
             }
-            
+
+            if (_parent != null)
+            {
+                return _parent.Get(name);
+            }
+
             throw new RuntimeException(name, $"Undefined variable '{name.Lexeme}'.");
         }
 
         public void Put(Token token, object? value)
         {
-            if(values.ContainsKey(token.Lexeme))
+            if (values.ContainsKey(token.Lexeme))
             {
                 values[token.Lexeme] = value;
+            }
+            else if (_parent != null)
+            {
+                _parent.Put(token, value);
             }
             else
             {

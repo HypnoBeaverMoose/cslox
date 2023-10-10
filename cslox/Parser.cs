@@ -57,10 +57,27 @@ namespace Lox
             {
                 return PrintStatement();
             }
+            else if (Match(TokenType.LEFT_BRACE))
+            {
+                return BlockStatement();
+            }
             else
             {
                 return ExpressionStatement();
             }
+        }
+
+        private Stmt BlockStatement()
+        {
+            var statements = new List<Stmt>();
+
+            while (!(Check(TokenType.RIGHT_BRACE) || _isAtEnd))
+            {
+                statements.Add(Declaration());
+            }
+            Consume(TokenType.RIGHT_BRACE, "Expect '}' after block");
+
+            return new Stmt.Block { Statements = statements };
         }
 
         private Stmt ExpressionStatement()

@@ -24,6 +24,31 @@ namespace Lox
             statement.Accept(this);
         }
 
+        private void ExecuteBlock(IReadOnlyList<Stmt> statements)
+        {
+            try
+            {
+                _environment = new Environment(_environment);
+                foreach (var statement in statements)
+                {
+                    Execute(statement);
+                }
+            }
+            finally
+            {
+                if (_environment.parent != null)
+                {
+                    _environment = _environment.parent;
+                }
+            }
+        }
+
+        public object? VisitBlock(Stmt.Block stmt)
+        {
+            ExecuteBlock(stmt.Statements);
+            return null;
+        }
+
         public object? VisitVar(Stmt.Var stmt)
         {
             object? value = null;

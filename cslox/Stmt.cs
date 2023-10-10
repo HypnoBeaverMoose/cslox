@@ -7,12 +7,24 @@ namespace Lox
 
         public interface Visitor<T>
         {
+            T VisitBlock(Block stmt);
+
             T VisitExpression(Expression stmt);
 
             T VisitPrint(Print stmt);
 
             T VisitVar(Var stmt);
 
+        }
+
+        public class Block : Stmt
+        {
+            public List<Stmt> Statements;
+
+            public override T Accept<T>(Visitor<T> visitor)
+            {
+                return visitor.VisitBlock(this);
+            }
         }
 
         public class Expression : Stmt

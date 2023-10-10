@@ -27,6 +27,7 @@ namespace ASTGen
             DefineAST(outputDir, "Stmt", 
             new string[] 
             {
+                "Block : List<Stmt> Statements",
                 "Expression : Expr Expr",
                 "Print : Expr Expr",
                 "Var : Token Name, Expr Initializer"
