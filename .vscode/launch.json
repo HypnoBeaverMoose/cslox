@@ -10,7 +10,7 @@
             "request": "launch",
             "preLaunchTask": "build",
             "program": "${workspaceFolder}/cslox/bin/Debug/net7.0/cslox.dll",
-            "args": [],
+            "args": ["input.txt"],
             "cwd": "${workspaceFolder}/cslox",
             "console": "integratedTerminal",
             "stopAtEntry": false
