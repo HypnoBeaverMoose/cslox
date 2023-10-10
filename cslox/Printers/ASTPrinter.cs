@@ -46,5 +46,10 @@ namespace Lox
 
             return builder.ToString();
         }
+
+        public string VisitVariable(Expr.Variable expr)
+        {
+            return Parenthesize(expr.Name.Lexeme);
+        }
     }
 }

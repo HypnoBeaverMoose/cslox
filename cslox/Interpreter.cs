@@ -2,6 +2,8 @@ namespace Lox
 {
     public class Interpreter : Expr.Visitor<object?>, Stmt.Visitor<object?>
     {
+        private Environment _environment = new();
+
         public void Interpret(IReadOnlyList<Stmt> statements)
         {
             try
@@ -22,6 +24,18 @@ namespace Lox
             statement.Accept(this);
         }
 
+        public object? VisitVar(Stmt.Var stmt)
+        {
+            object? value = null;
+            if (stmt.Initializer != null)
+            {
+                value = Evaluate(stmt.Initializer);
+            }
+            _environment.Define(stmt.Name.Lexeme, value);
+
+            return null;
+        }
+
         public object? VisitExpression(Stmt.Expression stmt)
         {
             Evaluate(stmt.Expr);
@@ -38,6 +52,11 @@ namespace Lox
         public object? VisitLiteral(Expr.Literal expr)
         {
             return expr.Value;
+        }
+
+        public object? VisitVariable(Expr.Variable expr)
+        {
+            return _environment.Get(expr.Name);
         }
 
         public object? VisitGrouping(Expr.Grouping expr)
@@ -182,6 +201,5 @@ namespace Lox
                 throw new RuntimeException(op, $"Operand must be{typeof(T).Name}");
             }
         }
-
     }
 }

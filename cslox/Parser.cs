@@ -1,5 +1,3 @@
-using System.Runtime.Serialization;
-
 namespace Lox
 {
     public class Parser
@@ -29,7 +27,7 @@ namespace Lox
             {
                 if (Match(TokenType.VAR))
                 {
-                    return VariableDeclaration()
+                    return VariableDeclaration();
                 }
                 else
                 {
@@ -174,7 +172,7 @@ namespace Lox
 
         private Expr Primary()
         {
-            if (Match(TokenType.FALSE, TokenType.TRUE, TokenType.NIL, TokenType.NUMBER, TokenType.STRING))
+            if (Match(TokenType.FALSE, TokenType.TRUE, TokenType.NIL, TokenType.NUMBER, TokenType.STRING, TokenType.IDENTIFIER))
             {
                 var token = Previous();
                 switch (token.TokenType)
