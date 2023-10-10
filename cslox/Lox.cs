@@ -82,7 +82,7 @@ namespace Lox
             hadError = true;
         }
 
-        internal static void RuntimeError(Interpreter.RuntimeException re)
+        internal static void RuntimeError(RuntimeException re)
         {
             Console.Error.WriteLine(re.Message + $"\n [line{re.Token.Line}]");
             hadRuntimeError = true;
