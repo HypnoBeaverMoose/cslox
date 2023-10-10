@@ -79,7 +79,27 @@ namespace Lox
 
         private Expr Expression()
         {
-            return Comma();
+            return Assignment();
+        }
+
+        private Expr Assignment()
+        {
+            var expr = Comma();
+
+            if (Match(TokenType.EQUAL))
+            {
+                var token = Previous();
+                var value = Assignment();
+
+                if (expr is Expr.Variable variable)
+                {
+                    var name = variable.Name;
+                    return new Expr.Assign { Name = name, Value = value };
+                }
+                Error(token, "Invalid assignment target");
+            }
+
+            return expr;
         }
 
         private Expr Comma()

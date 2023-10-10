@@ -15,6 +15,7 @@ namespace ASTGen
             DefineAST(outputDir, "Expr", 
             new string[] 
             {
+                "Assign : Token Name, Expr Value",
                 "Ternary : Expr Condition, Token Operator, Expr Left, Expr Right",
                 "Binary : Expr Left, Token Operator, Expr Right",
                 "Grouping : Expr Expression",

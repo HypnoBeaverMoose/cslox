@@ -18,5 +18,17 @@ namespace Lox
             
             throw new RuntimeException(name, $"Undefined variable '{name.Lexeme}'.");
         }
+
+        public void Put(Token token, object? value)
+        {
+            if(values.ContainsKey(token.Lexeme))
+            {
+                values[token.Lexeme] = value;
+            }
+            else
+            {
+                throw new RuntimeException(token, $"Undefined variable '${token.Lexeme}'.");
+            }
+        }
     }
 }

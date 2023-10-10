@@ -34,6 +34,16 @@ namespace Lox
             return Parenthesize(expr.Operator.Lexeme, expr.Condition, expr.Left, expr.Right);
         }
 
+        public string VisitVariable(Expr.Variable expr)
+        {
+            return Parenthesize(expr.Name.Lexeme);
+        }
+
+        public string VisitAssign(Expr.Assign expr)
+        {
+            return Parenthesize("=", new Expr.Variable { Name = expr.Name }, expr.Value);
+        }
+
         private string Parenthesize(string name, params Expr[] exprs)
         {
             StringBuilder builder = new();
@@ -47,9 +57,6 @@ namespace Lox
             return builder.ToString();
         }
 
-        public string VisitVariable(Expr.Variable expr)
-        {
-            return Parenthesize(expr.Name.Lexeme);
-        }
+
     }
 }

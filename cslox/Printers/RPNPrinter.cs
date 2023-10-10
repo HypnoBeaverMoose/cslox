@@ -39,6 +39,11 @@ namespace Lox
             return expr.Name.Lexeme;
         }
 
+        public string VisitAssign(Expr.Assign expr)
+        {
+            return RPN("=", new Expr.Variable { Name = expr.Name }, expr.Value);
+        }
+
         private string RPN(string name, params Expr[] exprs)
         {
             StringBuilder builder = new();

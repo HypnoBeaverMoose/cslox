@@ -7,6 +7,8 @@ namespace Lox
 
         public interface Visitor<T>
         {
+            T VisitAssign(Assign expr);
+
             T VisitTernary(Ternary expr);
 
             T VisitBinary(Binary expr);
@@ -19,6 +21,18 @@ namespace Lox
 
             T VisitVariable(Variable expr);
 
+        }
+
+        public class Assign : Expr
+        {
+            public Token Name;
+
+            public Expr Value;
+
+            public override T Accept<T>(Visitor<T> visitor)
+            {
+                return visitor.VisitAssign(this);
+            }
         }
 
         public class Ternary : Expr

@@ -175,6 +175,13 @@ namespace Lox
             return condition ? left : right;
         }
 
+        public object? VisitAssign(Expr.Assign expr)
+        {
+            var value = Evaluate(expr.Value);
+            _environment.Put(expr.Name, value);
+            return value;
+        }
+
         private object? Evaluate(Expr expr)
         {
             return expr.Accept(this);
