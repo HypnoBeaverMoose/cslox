@@ -1,7 +1,4 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
         {
@@ -10,7 +7,9 @@
             "request": "launch",
             "preLaunchTask": "build",
             "program": "${workspaceFolder}/cslox/bin/Debug/net7.0/cslox.dll",
-            "args": ["input.lox"],
+            "args": [
+                "input.lox"
+            ],
             "cwd": "${workspaceFolder}/cslox",
             "console": "integratedTerminal",
             "stopAtEntry": false
@@ -21,15 +20,12 @@
             "request": "launch",
             "preLaunchTask": "build",
             "program": "${workspaceFolder}/astgen/bin/Debug/net7.0/astgen.dll",
-            "args": ["../cslox"],
+            "args": [
+                "../cslox"
+            ],
             "cwd": "${workspaceFolder}/astgen",
             "console": "integratedTerminal",
             "stopAtEntry": false
-        },
-        {
-            "name": ".NET Core Attach",
-            "type": "coreclr",
-            "request": "attach"
         }
     ]
 }

@@ -17,6 +17,8 @@ namespace Lox
 
             T VisitUnary(Unary expr);
 
+            T VisitVariable(Variable expr);
+
         }
 
         public class Ternary : Expr
@@ -78,6 +80,16 @@ namespace Lox
             public override T Accept<T>(Visitor<T> visitor)
             {
                 return visitor.VisitUnary(this);
+            }
+        }
+
+        public class Variable : Expr
+        {
+            public Token Name;
+
+            public override T Accept<T>(Visitor<T> visitor)
+            {
+                return visitor.VisitVariable(this);
             }
         }
 

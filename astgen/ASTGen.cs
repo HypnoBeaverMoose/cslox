@@ -20,6 +20,7 @@ namespace ASTGen
                 "Grouping : Expr Expression",
                 "Literal : object? Value",
                 "Unary : Token Operator, Expr Right",
+                "Variable : Token Name",
             });
 
             DefineAST(outputDir, "Stmt", 
@@ -27,6 +28,7 @@ namespace ASTGen
             {
                 "Expression : Expr Expr",
                 "Print : Expr Expr",
+                "Var : Token Name, Expr Initializer"
             });
         }
 
