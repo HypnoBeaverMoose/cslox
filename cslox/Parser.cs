@@ -36,6 +36,7 @@ namespace Lox
             }
             catch (ParsingException)
             {
+                Synchronize();
                 return null;
             }
         }
@@ -286,6 +287,33 @@ namespace Lox
             }
 
             return Previous();
+        }
+
+        private void Synchronize()
+        {
+            Advance();
+            while(!_isAtEnd)
+            {
+                if(Previous().TokenType == TokenType.SEMICOLON)
+                {
+                    return;
+                }
+
+                switch(Peek().TokenType)
+                {
+                    case TokenType.CLASS:
+                    case TokenType.FUN:
+                    case TokenType.VAR:
+                    case TokenType.FOR:
+                    case TokenType.IF:
+                    case TokenType.WHILE:
+                    case TokenType.PRINT:
+                    case TokenType.RETURN:
+                    return;
+                }
+
+                Advance();
+            }
         }
 
         private Token Peek() => _tokens[_current];
