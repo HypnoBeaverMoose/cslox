@@ -66,10 +66,25 @@ namespace Lox
             {
                 return IfStatement();
             }
+            else if (Match(TokenType.WHILE))
+            {
+                return WhileStatement();
+            }
             else
             {
                 return ExpressionStatement();
             }
+        }
+
+        private Stmt WhileStatement()
+        {
+            Consume(TokenType.LEFT_PAREN, "Expect '(' after 'while'");
+            var condition = Expression();
+
+            Consume(TokenType.RIGHT_PAREN, "Expect ')' after condition");
+            var body = Statement();
+
+            return new Stmt.While { Condition = condition, Body = body };
         }
 
         private Stmt BlockStatement()

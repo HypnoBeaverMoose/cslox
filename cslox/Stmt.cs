@@ -17,6 +17,8 @@ namespace Lox
 
             T VisitVar(Var stmt);
 
+            T VisitWhile(While stmt);
+
         }
 
         public class If : Stmt
@@ -72,6 +74,18 @@ namespace Lox
             public override T Accept<T>(Visitor<T> visitor)
             {
                 return visitor.VisitVar(this);
+            }
+        }
+
+        public class While : Stmt
+        {
+            public Expr Condition;
+
+            public Stmt Body;
+
+            public override T Accept<T>(Visitor<T> visitor)
+            {
+                return visitor.VisitWhile(this);
             }
         }
 

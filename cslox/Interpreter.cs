@@ -261,5 +261,14 @@ namespace Lox
                 throw new RuntimeException(op, $"Operand must be{typeof(T).Name}");
             }
         }
+
+        public object? VisitWhile(Stmt.While stmt)
+        {
+            while (IsTruthy(Evaluate(stmt.Condition)))
+            {
+                Execute(stmt.Body);
+            }
+            return null;
+        }
     }
 }

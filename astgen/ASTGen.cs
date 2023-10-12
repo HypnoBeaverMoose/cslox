@@ -20,7 +20,7 @@ namespace ASTGen
                 "Binary : Expr Left, Token Operator, Expr Right",
                 "Grouping : Expr Expression",
                 "Literal : object? Value",
-                "Logical : Expr Left, Token Operator Expr Right",
+                "Logical : Expr Left, Token Operator, Expr Right",
                 "Unary : Token Operator, Expr Right",
                 "Variable : Token Name",
             });
@@ -32,7 +32,8 @@ namespace ASTGen
                 "Block : List<Stmt> Statements",
                 "Expression : Expr Expr",
                 "Print : Expr Expr",
-                "Var : Token Name, Expr Initializer"
+                "Var : Token Name, Expr Initializer",
+                "While : Expr Condition, Stmt Body"
             });
         }
 
