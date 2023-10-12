@@ -43,6 +43,19 @@ namespace Lox
             }
         }
 
+        public object? VisitIf(Stmt.If stmt)
+        {
+            if (IsTruthy(stmt.Condition))
+            {
+                Execute(stmt.ThenBranch);
+            }
+            else if (stmt.ElseBranch != null)
+            {
+                Execute(stmt.ElseBranch);
+            }
+            return null;
+        }
+
         public object? VisitBlock(Stmt.Block stmt)
         {
             ExecuteBlock(stmt.Statements);

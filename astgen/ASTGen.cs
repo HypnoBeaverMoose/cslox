@@ -6,14 +6,14 @@ namespace ASTGen
     {
         public static void Main(string[] args)
         {
-            if(args.Length != 1)
+            if (args.Length != 1)
             {
                 Console.WriteLine("Usage: astgen <output directory>");
                 System.Environment.Exit(64);
             }
             var outputDir = args[0];
-            DefineAST(outputDir, "Expr", 
-            new string[] 
+            DefineAST(outputDir, "Expr",
+            new string[]
             {
                 "Assign : Token Name, Expr Value",
                 "Ternary : Expr Condition, Token Operator, Expr Left, Expr Right",
@@ -24,9 +24,10 @@ namespace ASTGen
                 "Variable : Token Name",
             });
 
-            DefineAST(outputDir, "Stmt", 
-            new string[] 
+            DefineAST(outputDir, "Stmt",
+            new string[]
             {
+                "If : Expr Condition, Stmt ThenBranch, Stmt? ElseBranch",
                 "Block : List<Stmt> Statements",
                 "Expression : Expr Expr",
                 "Print : Expr Expr",

@@ -62,6 +62,10 @@ namespace Lox
             {
                 return BlockStatement();
             }
+            else if (Match(TokenType.IF))
+            {
+                return IfStatement();
+            }
             else
             {
                 return ExpressionStatement();
@@ -79,6 +83,23 @@ namespace Lox
             Consume(TokenType.RIGHT_BRACE, "Expect '}' after block");
 
             return new Stmt.Block { Statements = statements };
+        }
+        private Stmt IfStatement()
+        {
+            Consume(TokenType.LEFT_PAREN, "Expect '('");
+            var condition = Expression();
+
+            Consume(TokenType.LEFT_PAREN, "Expect ')'");
+
+            var thenBranch = Statement();
+            Stmt? elseBranch = null;
+
+            if (Match(TokenType.ELSE))
+            {
+                elseBranch = Statement();
+            }
+
+            return new Stmt.If { Condition = condition, ThenBranch = thenBranch, ElseBranch = elseBranch };
         }
 
         private Stmt ExpressionStatement()
@@ -292,14 +313,14 @@ namespace Lox
         private void Synchronize()
         {
             Advance();
-            while(!_isAtEnd)
+            while (!_isAtEnd)
             {
-                if(Previous().TokenType == TokenType.SEMICOLON)
+                if (Previous().TokenType == TokenType.SEMICOLON)
                 {
                     return;
                 }
 
-                switch(Peek().TokenType)
+                switch (Peek().TokenType)
                 {
                     case TokenType.CLASS:
                     case TokenType.FUN:
@@ -309,7 +330,7 @@ namespace Lox
                     case TokenType.WHILE:
                     case TokenType.PRINT:
                     case TokenType.RETURN:
-                    return;
+                        return;
                 }
 
                 Advance();

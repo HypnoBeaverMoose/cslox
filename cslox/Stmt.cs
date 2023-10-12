@@ -7,6 +7,8 @@ namespace Lox
 
         public interface Visitor<T>
         {
+            T VisitIf(If stmt);
+
             T VisitBlock(Block stmt);
 
             T VisitExpression(Expression stmt);
@@ -15,6 +17,20 @@ namespace Lox
 
             T VisitVar(Var stmt);
 
+        }
+
+        public class If : Stmt
+        {
+            public Expr Condition;
+
+            public Stmt ThenBranch;
+
+            public Stmt? ElseBranch;
+
+            public override T Accept<T>(Visitor<T> visitor)
+            {
+                return visitor.VisitIf(this);
+            }
         }
 
         public class Block : Stmt
