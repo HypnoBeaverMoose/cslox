@@ -17,6 +17,8 @@ namespace Lox
 
             T VisitLiteral(Literal expr);
 
+            T VisitLogical(Logical expr);
+
             T VisitUnary(Unary expr);
 
             T VisitVariable(Variable expr);
@@ -82,6 +84,20 @@ namespace Lox
             public override T Accept<T>(Visitor<T> visitor)
             {
                 return visitor.VisitLiteral(this);
+            }
+        }
+
+        public class Logical : Expr
+        {
+            public Expr Left;
+
+            public Token Operator;
+
+            public Expr Right;
+
+            public override T Accept<T>(Visitor<T> visitor)
+            {
+                return visitor.VisitLogical(this);
             }
         }
 

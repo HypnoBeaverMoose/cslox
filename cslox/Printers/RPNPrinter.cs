@@ -44,6 +44,11 @@ namespace Lox
             return RPN("=", new Expr.Variable { Name = expr.Name }, expr.Value);
         }
 
+        public string VisitLogical(Expr.Logical expr)
+        {
+            return RPN(expr.Operator.Lexeme, expr.Left, expr.Right);
+        }
+
         private string RPN(string name, params Expr[] exprs)
         {
             StringBuilder builder = new();

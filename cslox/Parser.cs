@@ -155,7 +155,7 @@ namespace Lox
 
         private Expr Ternary()
         {
-            var expr = Equality();
+            var expr = LogicalOr();
             if (Match(TokenType.QUESTION))
             {
                 var token = Previous();
@@ -165,6 +165,30 @@ namespace Lox
 
                 var right = Ternary();
                 expr = new Expr.Ternary { Condition = expr, Operator = token, Left = left, Right = right };
+            }
+            return expr;
+        }
+
+        private Expr LogicalOr()
+        {
+            var expr = LogicalAnd();
+            while (Match(TokenType.OR))
+            {
+                var token = Previous();
+                var right = LogicalAnd();
+                expr = new Expr.Logical { Left = expr, Operator = token, Right = right };
+            }
+            return expr;
+        }
+
+        private Expr LogicalAnd()
+        {
+            var expr = Equality();
+            while (Match(TokenType.AND))
+            {
+                var token = Previous();
+                var right = Equality();
+                expr = new Expr.Logical { Left = expr, Operator = token, Right = right };
             }
             return expr;
         }

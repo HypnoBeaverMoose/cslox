@@ -43,6 +43,21 @@ namespace Lox
             }
         }
 
+        public object? VisitLogical(Expr.Logical expr)
+        {
+            var left = Evaluate(expr.Left);
+            if (expr.Operator.TokenType == TokenType.OR && IsTruthy(left))
+            {
+                return left;
+            }
+            else if (expr.Operator.TokenType == TokenType.AND && !IsTruthy(left))
+            {
+                return left;
+            }
+
+            return Evaluate(expr.Right);
+        }
+
         public object? VisitIf(Stmt.If stmt)
         {
             if (IsTruthy(Evaluate(stmt.Condition)))

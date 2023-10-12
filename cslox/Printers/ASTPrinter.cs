@@ -44,6 +44,11 @@ namespace Lox
             return Parenthesize("=", new Expr.Variable { Name = expr.Name }, expr.Value);
         }
 
+        public string VisitLogical(Expr.Logical expr)
+        {
+            return Parenthesize(expr.Operator.Lexeme, expr.Left, expr.Right);
+        }
+
         private string Parenthesize(string name, params Expr[] exprs)
         {
             StringBuilder builder = new();
