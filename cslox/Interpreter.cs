@@ -45,7 +45,7 @@ namespace Lox
 
         public object? VisitIf(Stmt.If stmt)
         {
-            if (IsTruthy(stmt.Condition))
+            if (IsTruthy(Evaluate(stmt.Condition)))
             {
                 Execute(stmt.ThenBranch);
             }

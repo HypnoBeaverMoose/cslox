@@ -89,7 +89,7 @@ namespace Lox
             Consume(TokenType.LEFT_PAREN, "Expect '('");
             var condition = Expression();
 
-            Consume(TokenType.LEFT_PAREN, "Expect ')'");
+            Consume(TokenType.RIGHT_PAREN, "Expect ')'");
 
             var thenBranch = Statement();
             Stmt? elseBranch = null;
