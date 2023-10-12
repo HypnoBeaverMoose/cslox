@@ -1,19 +1,15 @@
-var a = "global a";
-var b = "global b";
-var c = "global c";
+var a = 0;
+var temp;
+var output = "";
+var counter = 1;
+
+for(var b = 1; b < 100000; b = temp + b)
 {
-  var a = "outer a";
-  var b = "outer b";
-  {
-    var a = "inner a";
-    print a;
-    print b;
-    print c;
-  }
-  print a;
-  print b;
-  print c;
+    counter = counter + 1;
+    output = output + " " + a;
+    temp = a;
+    a = b;
 }
-print a;
-print b;
-print c;
+
+print output;
+print counter + " numbers";

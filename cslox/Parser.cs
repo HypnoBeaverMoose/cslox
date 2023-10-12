@@ -70,11 +70,57 @@ namespace Lox
             {
                 return WhileStatement();
             }
+            else if (Match(TokenType.FOR))
+            {
+                return ForStatement();
+            }
             else
             {
                 return ExpressionStatement();
             }
         }
+
+        private Stmt ForStatement()
+        {
+            Consume(TokenType.LEFT_PAREN, "Expect '(' after 'for'");
+            Stmt init = Match(TokenType.VAR) ? VariableDeclaration() :
+                                                    ExpressionStatement();
+
+            Expr condition = Check(TokenType.SEMICOLON) ? new Expr.Literal { Value = true } : Expression();
+            Consume(TokenType.SEMICOLON, "Expect ';' after condition");
+
+
+            Expr? increment = null;
+            if (!Check(TokenType.RIGHT_PAREN))
+            {
+                increment = Expression();
+            }
+
+            Consume(TokenType.RIGHT_PAREN, "Expect ')' after for");
+
+            var body = Statement();
+
+            if (increment != null)
+            {
+                body = new Stmt.Block
+                {
+                    Statements = new List<Stmt>() { body, new Stmt.Expression { Expr = increment } }
+                };
+            }
+
+            body = new Stmt.While { Condition = condition, Body = body };
+
+            if (init != null)
+            {
+                body = new Stmt.Block
+                {
+                    Statements = new List<Stmt>() { init, body }
+                };
+            }
+
+            return body;
+        }
+
 
         private Stmt WhileStatement()
         {
