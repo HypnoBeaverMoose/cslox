@@ -57,20 +57,19 @@ namespace Lox
         private static void Run(string text)
         {
             var tokens = Scanner.Scan(text);
-            var isExpression = REPLHelper.IsExpression(tokens);
 
-            if (isExpression)
+            if (REPLHelper.IsExpression(tokens))
             {
-                tokens.Insert(tokens.Count - 1, new Token(TokenType.SEMICOLON, ";", null, 0));
+                REPLHelper.FixExpression(tokens);
             }
 
             var statements = new Parser(tokens).Parse();
 
             if (!hadError)
             {
-                if(statements.Count == 1 && statements[0] is Stmt.Expression expr)
+                if(REPLHelper.TryGetSingleExpression(statements, out Expr? expression))
                 {
-                    Console.WriteLine(_interpreter.Evaluate(expr.Expr));
+                    Console.WriteLine(_interpreter.Evaluate(expression));
                 }
                 else
                 {
