@@ -235,7 +235,7 @@ namespace Lox
             return value;
         }
 
-        private object? Evaluate(Expr expr)
+        public object? Evaluate(Expr expr)
         {
             return expr.Accept(this);
         }

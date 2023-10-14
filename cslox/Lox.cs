@@ -57,11 +57,25 @@ namespace Lox
         private static void Run(string text)
         {
             var tokens = Scanner.Scan(text);
+            var isExpression = REPLHelper.IsExpression(tokens);
+
+            if (isExpression)
+            {
+                tokens.Insert(tokens.Count - 1, new Token(TokenType.SEMICOLON, ";", null, 0));
+            }
+
             var statements = new Parser(tokens).Parse();
 
             if (!hadError)
             {
-                _interpreter.Interpret(statements);
+                if(statements.Count == 1 && statements[0] is Stmt.Expression expr)
+                {
+                    Console.WriteLine(_interpreter.Evaluate(expr.Expr));
+                }
+                else
+                {
+                    _interpreter.Interpret(statements);
+                }
             }
         }
 
@@ -78,11 +92,11 @@ namespace Lox
 
         private static void Report(int line, string where, string message)
         {
-            Console.Error.WriteLine($"[line {line} ] Error {where} + : {message}");
+            Console.Error.WriteLine($"[line {line} ] Error {where} : {message}");
             hadError = true;
         }
 
-        internal static void RuntimeError(RuntimeException re)
+        public static void RuntimeError(RuntimeException re)
         {
             Console.Error.WriteLine(re.Message + $"\n [line{re.Token.Line}]");
             hadRuntimeError = true;
