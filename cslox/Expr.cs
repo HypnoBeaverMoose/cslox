@@ -13,6 +13,8 @@ namespace Lox
 
             T VisitBinary(Binary expr);
 
+            T VisitCall(Call expr);
+
             T VisitGrouping(Grouping expr);
 
             T VisitLiteral(Literal expr);
@@ -64,6 +66,20 @@ namespace Lox
             public override T Accept<T>(Visitor<T> visitor)
             {
                 return visitor.VisitBinary(this);
+            }
+        }
+
+        public class Call : Expr
+        {
+            public Expr Callee;
+
+            public Token Paren;
+
+            public List<Expr> Arguments;
+
+            public override T Accept<T>(Visitor<T> visitor)
+            {
+                return visitor.VisitCall(this);
             }
         }
 

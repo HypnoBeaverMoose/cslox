@@ -1,3 +1,5 @@
+using System.ComponentModel;
+
 namespace Lox
 {
     public class Parser
@@ -311,7 +313,38 @@ namespace Lox
                 return new Expr.Unary { Operator = token, Right = right };
             }
 
-            return Primary();
+            return Call();
+        }
+
+        private Expr Call()
+        {
+            var expr = Primary();
+
+            while (Match(TokenType.LEFT_PAREN))
+            {
+                expr = FinishCall(expr);
+            }
+
+            return expr;
+        }
+
+        private Expr FinishCall(Expr expr)
+        {
+            var arguments = new List<Expr>();
+            if (!Check(TokenType.RIGHT_PAREN))
+            {
+                do
+                {
+                    if (arguments.Count >= 255)
+                    {
+                        Error(Peek(), "Can't have more than 255 arguments");
+                    }
+                    arguments.Add(Expression());
+                } while (Match(TokenType.COMMA));
+            }
+            var parenthesis = Consume(TokenType.RIGHT_PAREN, "Expect ')' after argument list");
+
+            return new Expr.Call { Callee = expr, Arguments = arguments, Paren = parenthesis };
         }
 
         private Expr Primary()

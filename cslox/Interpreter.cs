@@ -89,6 +89,7 @@ namespace Lox
             return null;
         }
 
+
         public object? VisitExpression(Stmt.Expression stmt)
         {
             Evaluate(stmt.Expr);
@@ -99,6 +100,15 @@ namespace Lox
         {
             var result = Evaluate(stmt.Expr);
             Console.WriteLine(result?.ToString());
+            return null;
+        }
+
+        public object? VisitWhile(Stmt.While stmt)
+        {
+            while (IsTruthy(Evaluate(stmt.Condition)))
+            {
+                Execute(stmt.Body);
+            }
             return null;
         }
 
@@ -228,6 +238,23 @@ namespace Lox
             return condition ? left : right;
         }
 
+        public object? VisitCall(Expr.Call expr)
+        {
+            var callee = Evaluate(expr.Callee);
+            if (callee is not ILoxCallable loxCallable)
+            {
+                throw new RuntimeException(expr.Paren, "Only functions and classes can be called");
+            }
+
+            var arguments = expr.Arguments.Select(a => Evaluate(a)).ToList();
+            if (arguments.Count != loxCallable.Arity)
+            {
+                throw new RuntimeException(expr.Paren, $"Expected {loxCallable.Arity} arguments, but got {arguments.Count}.");
+            }
+
+            return loxCallable?.Call(this, arguments);
+        }
+
         public object? VisitAssign(Expr.Assign expr)
         {
             var value = Evaluate(expr.Value);
@@ -260,15 +287,6 @@ namespace Lox
             {
                 throw new RuntimeException(op, $"Operand must be{typeof(T).Name}");
             }
-        }
-
-        public object? VisitWhile(Stmt.While stmt)
-        {
-            while (IsTruthy(Evaluate(stmt.Condition)))
-            {
-                Execute(stmt.Body);
-            }
-            return null;
         }
     }
 }
