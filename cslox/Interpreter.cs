@@ -4,6 +4,13 @@ namespace Lox
     {
         private Environment _environment = new();
 
+        private Environment _globals = new();
+
+        public Interpreter()
+        {
+            _globals.Define("clock", new Clock());
+        }
+
         public void Interpret(IReadOnlyList<Stmt> statements)
         {
             try
