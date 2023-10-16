@@ -13,6 +13,8 @@ namespace Lox
 
             T VisitExpression(Expression stmt);
 
+            T VisitFunction(Function stmt);
+
             T VisitPrint(Print stmt);
 
             T VisitVar(Var stmt);
@@ -52,6 +54,20 @@ namespace Lox
             public override T Accept<T>(Visitor<T> visitor)
             {
                 return visitor.VisitExpression(this);
+            }
+        }
+
+        public class Function : Stmt
+        {
+            public Token Name;
+
+            public List<Token> Parameters;
+
+            public List<Stmt> Body;
+
+            public override T Accept<T>(Visitor<T> visitor)
+            {
+                return visitor.VisitFunction(this);
             }
         }
 

@@ -31,6 +31,10 @@ namespace Lox
                 {
                     return VariableDeclaration();
                 }
+                else if (Match(TokenType.FUN))
+                {
+                    return FunctionDeclaration("function");
+                }
                 else
                 {
                     return Statement();
@@ -41,6 +45,31 @@ namespace Lox
                 Synchronize();
                 return null;
             }
+        }
+
+        private Stmt FunctionDeclaration(string kind)
+        {
+            var name = Consume(TokenType.IDENTIFIER, $"Expect, {kind} name.");
+
+            Consume(TokenType.LEFT_PAREN, $"Expect '(' after {kind} name.");
+
+            var parameters = new List<Token>();
+            if (!Check(TokenType.RIGHT_PAREN))
+            {
+                do
+                {
+                    if (parameters.Count >= 255)
+                    {
+                        Error(Peek(), "Can't have more than 255 parameters");
+                    }
+                    parameters.Add(Consume(TokenType.IDENTIFIER, "Expect, parameter name."));
+                } while (Match(TokenType.COMMA));
+            }
+            Consume(TokenType.RIGHT_PAREN, "Expect ')' after parameter list");
+
+            Consume(TokenType.LEFT_BRACE, "Expect '{' before " + kind + " body");
+            var body = BlockStatement();
+            return new Stmt.Function { Name = name, Parameters = parameters, Body = body };
         }
 
         private Stmt VariableDeclaration()
@@ -62,7 +91,7 @@ namespace Lox
             }
             else if (Match(TokenType.LEFT_BRACE))
             {
-                return BlockStatement();
+                return new Stmt.Block { Statements = BlockStatement() };
             }
             else if (Match(TokenType.IF))
             {
@@ -135,7 +164,7 @@ namespace Lox
             return new Stmt.While { Condition = condition, Body = body };
         }
 
-        private Stmt BlockStatement()
+        private List<Stmt> BlockStatement()
         {
             var statements = new List<Stmt>();
 
@@ -145,7 +174,7 @@ namespace Lox
             }
             Consume(TokenType.RIGHT_BRACE, "Expect '}' after block");
 
-            return new Stmt.Block { Statements = statements };
+            return statements;
         }
         private Stmt IfStatement()
         {

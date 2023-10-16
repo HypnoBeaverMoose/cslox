@@ -295,5 +295,10 @@ namespace Lox
                 throw new RuntimeException(op, $"Operand must be{typeof(T).Name}");
             }
         }
+
+        public object? VisitFunction(Stmt.Function stmt)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -32,6 +32,7 @@ namespace ASTGen
                 "If : Expr Condition, Stmt ThenBranch, Stmt? ElseBranch",
                 "Block : List<Stmt> Statements",
                 "Expression : Expr Expr",
+                "Function : Token Name, List<Token> Parameters, List<Stmt> Body",
                 "Print : Expr Expr",
                 "Var : Token Name, Expr Initializer",
                 "While : Expr Condition, Stmt Body"
