@@ -1,15 +1,12 @@
-fun fib(number)
+fun makeCounter()
 {
-    if (number <= 1)
+    var i = 0;
+
+    fun count()
     {
-         return number;
+        i = i + 1;
+        return i;
     }
-
-    return fib(number - 1) + fib(number - 2);
+    return count;
 }
 
-
-for(var i = 0; i < 20; i=i+1)
-{
-    print fib(i);
-}

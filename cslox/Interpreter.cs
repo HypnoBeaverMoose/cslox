@@ -79,7 +79,7 @@ namespace Lox
 
         public object? VisitFunction(Stmt.Function stmt)
         {
-            var function = new LoxFunction(stmt);
+            var function = new LoxFunction(stmt, _environment);
             _environment.Define(stmt.Name.Lexeme, function);
             return null;
         }
