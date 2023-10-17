@@ -4,11 +4,11 @@ namespace Lox
     {
         private Environment _environment = new();
 
-        private Environment _globals = new();
+        public readonly Environment Globals = new();
 
         public Interpreter()
         {
-            _globals.Define("clock", new Clock());
+            Globals.Define("clock", new Clock());
         }
 
         public void Interpret(IReadOnlyList<Stmt> statements)
@@ -31,11 +31,12 @@ namespace Lox
             statement.Accept(this);
         }
 
-        private void ExecuteBlock(IReadOnlyList<Stmt> statements)
+        public void ExecuteBlock(IReadOnlyList<Stmt> statements, Environment environment)
         {
+            var previous = _environment;
             try
             {
-                _environment = new Environment(_environment);
+                _environment = environment;
                 foreach (var statement in statements)
                 {
                     Execute(statement);
@@ -43,10 +44,7 @@ namespace Lox
             }
             finally
             {
-                if (_environment.parent != null)
-                {
-                    _environment = _environment.parent;
-                }
+                _environment = previous;
             }
         }
 
@@ -78,9 +76,16 @@ namespace Lox
             return null;
         }
 
+        public object? VisitFunction(Stmt.Function stmt)
+        {
+            var function = new LoxFunction(stmt);
+            _environment.Define(stmt.Name.Lexeme, function);
+            return null;
+        }
+
         public object? VisitBlock(Stmt.Block stmt)
         {
-            ExecuteBlock(stmt.Statements);
+            ExecuteBlock(stmt.Statements, new Environment(_environment));
             return null;
         }
 
@@ -294,11 +299,6 @@ namespace Lox
             {
                 throw new RuntimeException(op, $"Operand must be{typeof(T).Name}");
             }
-        }
-
-        public object? VisitFunction(Stmt.Function stmt)
-        {
-            throw new NotImplementedException();
         }
     }
 }

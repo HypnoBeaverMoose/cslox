@@ -23,6 +23,7 @@ namespace Lox
 
             return statements;
         }
+
         private Stmt Declaration()
         {
             try
@@ -215,7 +216,7 @@ namespace Lox
 
         private Expr Assignment()
         {
-            var expr = Comma();
+            var expr = Ternary();
 
             if (Match(TokenType.EQUAL))
             {
@@ -233,17 +234,17 @@ namespace Lox
             return expr;
         }
 
-        private Expr Comma()
-        {
-            var expr = Ternary();
-            while (Match(TokenType.COMMA))
-            {
-                var token = Previous();
-                var right = Ternary();
-                expr = new Expr.Binary { Left = expr, Operator = token, Right = right };
-            }
-            return expr;
-        }
+        // private Expr Comma()
+        // {
+        //     var expr = Ternary();
+        //     while (Match(TokenType.COMMA))
+        //     {
+        //         var token = Previous();
+        //         var right = Ternary();
+        //         expr = new Expr.Binary { Left = expr, Operator = token, Right = right };
+        //     }
+        //     return expr;
+        // }
 
         private Expr Ternary()
         {
