@@ -237,6 +237,8 @@ namespace Lox
                     return divResult;
                 case TokenType.STAR:
                     return TryCast<double>(expr.Operator, left) * TryCast<double>(expr.Operator, right); ;
+                case TokenType.COMMA:
+                    return right;
                 default:
                     return null;
             }

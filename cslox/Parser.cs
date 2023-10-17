@@ -131,7 +131,7 @@ namespace Lox
             Stmt init = Match(TokenType.VAR) ? VariableDeclaration() :
                                                     ExpressionStatement();
 
-            Expr condition = Check(TokenType.SEMICOLON) ? new Expr.Literal { Value = true } : Expression();
+            Expr condition = Check(TokenType.SEMICOLON) ? new Expr.Literal { Value = true } : SingleExpression();
             Consume(TokenType.SEMICOLON, "Expect ';' after condition");
 
 
@@ -170,7 +170,7 @@ namespace Lox
         private Stmt WhileStatement()
         {
             Consume(TokenType.LEFT_PAREN, "Expect '(' after 'while'");
-            var condition = Expression();
+            var condition = SingleExpression();
 
             Consume(TokenType.RIGHT_PAREN, "Expect ')' after condition");
             var body = Statement();
@@ -193,7 +193,7 @@ namespace Lox
         private Stmt IfStatement()
         {
             Consume(TokenType.LEFT_PAREN, "Expect '('");
-            var condition = Expression();
+            var condition = SingleExpression();
 
             Consume(TokenType.RIGHT_PAREN, "Expect ')'");
 
@@ -224,6 +224,18 @@ namespace Lox
 
         private Expr Expression()
         {
+            var expr = SingleExpression();
+            while (Match(TokenType.COMMA))
+            {
+                var token = Previous();
+                var right = SingleExpression();
+                expr = new Expr.Binary { Left = expr, Operator = token, Right = right };
+            }
+            return expr;
+        }
+
+        private Expr SingleExpression()
+        {
             return Assignment();
         }
 
@@ -246,18 +258,6 @@ namespace Lox
 
             return expr;
         }
-
-        // private Expr Comma()
-        // {
-        //     var expr = Ternary();
-        //     while (Match(TokenType.COMMA))
-        //     {
-        //         var token = Previous();
-        //         var right = Ternary();
-        //         expr = new Expr.Binary { Left = expr, Operator = token, Right = right };
-        //     }
-        //     return expr;
-        // }
 
         private Expr Ternary()
         {
@@ -382,7 +382,7 @@ namespace Lox
                     {
                         Error(Peek(), "Can't have more than 255 arguments");
                     }
-                    arguments.Add(Expression());
+                    arguments.Add(SingleExpression());
                 } while (Match(TokenType.COMMA));
             }
             var parenthesis = Consume(TokenType.RIGHT_PAREN, "Expect ')' after argument list");
