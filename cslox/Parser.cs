@@ -6,6 +6,8 @@ namespace Lox
         private int _current = 0;
         private bool _isAtEnd => Peek().TokenType == TokenType.EOF;
 
+        private int _nestedLoops = 0;
+
         public Parser(List<Token> tokens)
         {
             _tokens = new List<Token>(tokens);
@@ -100,18 +102,42 @@ namespace Lox
             {
                 return IfStatement();
             }
+            else if (Match(TokenType.BREAK))
+            {
+                return BreakStatement();
+            }
             else if (Match(TokenType.WHILE))
             {
-                return WhileStatement();
+                _nestedLoops++;
+                var stmt = WhileStatement();
+                _nestedLoops--;
+
+                return stmt;
             }
             else if (Match(TokenType.FOR))
             {
-                return ForStatement();
+                _nestedLoops++;
+                var stmt = ForStatement();
+                _nestedLoops--;
+
+                return stmt;
             }
             else
             {
                 return ExpressionStatement();
             }
+        }
+
+        private Stmt BreakStatement()
+        {
+            bool isInsideLoops = _nestedLoops > 0;
+            var token = Previous();
+            if (!isInsideLoops)
+            {
+                Error(token, "Expect 'break;' statements only inside loops");
+            }
+            Consume(TokenType.SEMICOLON, "Expect ';' after break");
+            return new Stmt.Break { Keyword = token };
         }
 
         private Stmt ReturnStatement()

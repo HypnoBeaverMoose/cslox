@@ -120,7 +120,14 @@ namespace Lox
         {
             while (IsTruthy(Evaluate(stmt.Condition)))
             {
-                Execute(stmt.Body);
+                try
+                {
+                    Execute(stmt.Body);
+                }
+                catch (BreakException)
+                {
+                    break;
+                }
             }
             return null;
         }
@@ -309,6 +316,11 @@ namespace Lox
             var value = stmt.Value == null ? stmt.Value : Evaluate(stmt.Value);
 
             throw new ReturnException(value);
+        }
+
+        public object? VisitBreak(Stmt.Break stmt)
+        {
+            throw new BreakException();
         }
     }
 }

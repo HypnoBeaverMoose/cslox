@@ -18,8 +18,8 @@ namespace Lox
 
         // Keywords.
         AND, CLASS, ELSE, FALSE, FUN, FOR, IF, NIL, OR,
-        PRINT, RETURN, SUPER, THIS, TRUE, VAR, WHILE,
+        PRINT, RETURN, SUPER, THIS, TRUE, VAR, WHILE, BREAK,
 
-        EOF
+        EOF,
     }
 }

@@ -17,6 +17,8 @@ namespace Lox
 
             T VisitPrint(Print stmt);
 
+            T VisitBreak(Break stmt);
+
             T VisitReturn(Return stmt);
 
             T VisitVar(Var stmt);
@@ -80,6 +82,16 @@ namespace Lox
             public override T Accept<T>(Visitor<T> visitor)
             {
                 return visitor.VisitPrint(this);
+            }
+        }
+
+        public class Break : Stmt
+        {
+            public Token Keyword;
+
+            public override T Accept<T>(Visitor<T> visitor)
+            {
+                return visitor.VisitBreak(this);
             }
         }
 

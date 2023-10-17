@@ -20,6 +20,8 @@ namespace Lox
             {"true", TokenType.TRUE},
             {"var", TokenType.VAR},
             {"while", TokenType.WHILE},
+            {"break", TokenType.BREAK},
+
         };
 
         public static bool TryGetTokenType(string keyword, out TokenType tokenType)
