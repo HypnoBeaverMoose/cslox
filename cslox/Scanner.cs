@@ -15,7 +15,7 @@ namespace Lox
 
         public static List<Token> Scan(string text)
         {
-            _line = 0;
+            _line = 1;
             _source = text;
             _start = _current = 0;
             _tokens.Clear();
