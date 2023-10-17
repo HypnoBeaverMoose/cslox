@@ -308,7 +308,7 @@ namespace Lox
         {
             var value = stmt.Value == null ? stmt.Value : Evaluate(stmt.Value);
 
-            throw new Return(value);
+            throw new ReturnException(value);
         }
     }
 }

@@ -499,21 +499,5 @@ namespace Lox
         private Token Peek() => _tokens[_current];
 
         private Token Previous() => _tokens[_current - 1];
-
-        [Serializable]
-        public class ParsingException : Exception
-        {
-            public ParsingException()
-            {
-            }
-
-            public ParsingException(string? message) : base(message)
-            {
-            }
-
-            public ParsingException(string? message, Exception? innerException) : base(message, innerException)
-            {
-            }
-        }
     }
 }
