@@ -34,6 +34,7 @@ namespace ASTGen
                 "Expression : Expr Expr",
                 "Function : Token Name, List<Token> Parameters, List<Stmt> Body",
                 "Print : Expr Expr",
+                "Return : Token Keyword, Expr Value",
                 "Var : Token Name, Expr Initializer",
                 "While : Expr Condition, Stmt Body"
             });

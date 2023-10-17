@@ -17,6 +17,8 @@ namespace Lox
 
             T VisitPrint(Print stmt);
 
+            T VisitReturn(Return stmt);
+
             T VisitVar(Var stmt);
 
             T VisitWhile(While stmt);
@@ -78,6 +80,18 @@ namespace Lox
             public override T Accept<T>(Visitor<T> visitor)
             {
                 return visitor.VisitPrint(this);
+            }
+        }
+
+        public class Return : Stmt
+        {
+            public Token Keyword;
+
+            public Expr Value;
+
+            public override T Accept<T>(Visitor<T> visitor)
+            {
+                return visitor.VisitReturn(this);
             }
         }
 

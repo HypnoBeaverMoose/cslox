@@ -21,7 +21,15 @@ namespace Lox
                 env.Define(_function.Parameters[i].Lexeme, arguments[i]);
             }
 
-            interpreter.ExecuteBlock(_function.Body, env);
+            try
+            {
+                interpreter.ExecuteBlock(_function.Body, env);
+            }
+            catch(Return ret)
+            {
+                return ret.Value;
+            }
+
             return null;
         }
 

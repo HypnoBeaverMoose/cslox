@@ -86,7 +86,11 @@ namespace Lox
 
         private Stmt Statement()
         {
-            if (Match(TokenType.PRINT))
+            if (Match(TokenType.RETURN))
+            {
+                return ReturnStatement();
+            }
+            else if (Match(TokenType.PRINT))
             {
                 return PrintStatement();
             }
@@ -110,6 +114,15 @@ namespace Lox
             {
                 return ExpressionStatement();
             }
+        }
+
+        private Stmt ReturnStatement()
+        {
+            var keyword = Previous();
+            var value = Check(TokenType.SEMICOLON) ? null : Expression();
+            Consume(TokenType.SEMICOLON, "Expect ';' after return value");
+
+            return new Stmt.Return { Keyword = keyword, Value = value };
         }
 
         private Stmt ForStatement()

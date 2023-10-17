@@ -2,12 +2,13 @@ namespace Lox
 {
     public class Interpreter : Expr.Visitor<object?>, Stmt.Visitor<object?>
     {
-        private Environment _environment = new();
-
         public readonly Environment Globals = new();
+
+        private Environment _environment;
 
         public Interpreter()
         {
+            _environment = Globals;
             Globals.Define("clock", new Clock());
         }
 
@@ -299,6 +300,13 @@ namespace Lox
             {
                 throw new RuntimeException(op, $"Operand must be{typeof(T).Name}");
             }
+        }
+
+        public object? VisitReturn(Stmt.Return stmt)
+        {
+            var value = stmt.Value == null ? stmt.Value : Evaluate(stmt.Value);
+
+            throw new Return(value);
         }
     }
 }
