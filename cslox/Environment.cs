@@ -53,7 +53,7 @@ namespace Lox
             }
         }
 
-        public object? GetAt(int distance, Token name)
+        public object? GetAt(Token name, int distance)
         {
             var ans = Ancestor(distance);
 
@@ -73,8 +73,10 @@ namespace Lox
             {
                 ans.values[name.Lexeme] = value;
             }
-
-            throw new RuntimeException(name, $"Undefined variable '{name.Lexeme}'.");
+            else
+            {
+                throw new RuntimeException(name, $"Undefined variable '{name.Lexeme}'.");
+            }
         }
 
         private Environment Ancestor(int distance)

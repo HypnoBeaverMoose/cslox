@@ -7,6 +7,8 @@ namespace Lox
     {
         private readonly Interpreter _interpreter;
 
+        private FunctionType _currentFunction = FunctionType.NONE;
+
         private readonly List<Dictionary<string, bool>> _scopes = new();
 
         public Resolver(Interpreter interpreter)
@@ -49,7 +51,7 @@ namespace Lox
             Declare(stmt.Name);
             Define(stmt.Name);
 
-            ResolveFunction(stmt);
+            ResolveFunction(stmt, FunctionType.FUNCTION);
             return null;
         }
 
@@ -79,6 +81,11 @@ namespace Lox
 
         public object? VisitReturn(Stmt.Return stmt)
         {
+            if (_currentFunction == FunctionType.NONE)
+            {
+                Lox.Error(stmt.Keyword, "Can't return from top level code");
+            }
+
             if (stmt.Value != null)
             {
                 Resolve(stmt.Value);
@@ -150,7 +157,7 @@ namespace Lox
 
         public object? VisitVariable(Expr.Variable expr)
         {
-            if (_scopes.Count > 0 && _scopes[0][expr.Name.Lexeme] == false)
+            if (_scopes.Count > 0 && _scopes[^1].TryGetValue(expr.Name.Lexeme, out bool val) && !val)
             {
                 Lox.Error(expr.Name, "Can't read local variable in it's own initializer");
             }
@@ -178,16 +185,20 @@ namespace Lox
             }
         }
 
-        private void ResolveFunction(Stmt.Function stmt)
+        private void ResolveFunction(Stmt.Function stmt, FunctionType type)
         {
-            using (new ScopeBlock(this))
+
+            using (new FunctionBlock(this, type))
             {
-                foreach (var param in stmt.Parameters)
+                using (new ScopeBlock(this))
                 {
-                    Declare(param);
-                    Define(param);
+                    foreach (var param in stmt.Parameters)
+                    {
+                        Declare(param);
+                        Define(param);
+                    }
+                    Resolve(stmt.Body);
                 }
-                Resolve(stmt.Body);
             }
         }
 
@@ -195,7 +206,7 @@ namespace Lox
         {
             if (_scopes.Count > 0)
             {
-                if (!_scopes[0].TryAdd(name.Lexeme, false))
+                if (!_scopes[^1].TryAdd(name.Lexeme, false))
                 {
                     Lox.Error(name, "Already a variable with this name in this scope.");
                 }
@@ -206,7 +217,7 @@ namespace Lox
         {
             if (_scopes.Count > 0)
             {
-                _scopes[0][name.Lexeme] = true;
+                _scopes[^1][name.Lexeme] = true;
             }
         }
 
@@ -244,6 +255,30 @@ namespace Lox
             {
                 _resolver.EndScope();
             }
+        }
+
+        private struct FunctionBlock : IDisposable
+        {
+            private Resolver _resolver;
+            private FunctionType _functionCache;
+
+            public FunctionBlock(Resolver resolver, FunctionType type)
+            {
+                _resolver = resolver;
+                _functionCache = _resolver._currentFunction;
+                _resolver._currentFunction = type;
+            }
+
+            public void Dispose()
+            {
+                _resolver._currentFunction = _functionCache;
+            }
+        }
+
+        private enum FunctionType
+        {
+            NONE,
+            FUNCTION
         }
     }
 }

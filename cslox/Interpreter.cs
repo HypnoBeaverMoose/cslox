@@ -342,7 +342,7 @@ namespace Lox
         {
             if(_locals.TryGetValue(expr, out int distance))
             {
-                return _environment.GetAt(distance);
+                return _environment.GetAt(name, distance);
             }
             else
             {
