@@ -4,12 +4,19 @@ namespace Lox
     {
         public readonly Environment Globals = new();
 
+
+        private Dictionary<Expr, int> _locals = new();
         private Environment _environment;
 
         public Interpreter()
         {
             _environment = Globals;
             Globals.Define("clock", new Clock());
+        }
+
+        public void Resolve(Expr expr, int depth)
+        {
+            _locals.Add(expr, depth);
         }
 
         public void Interpret(IReadOnlyList<Stmt> statements)
@@ -139,7 +146,7 @@ namespace Lox
 
         public object? VisitVariable(Expr.Variable expr)
         {
-            return _environment.Get(expr.Name);
+            return LookUpVariable(expr.Name, expr);
         }
 
         public object? VisitGrouping(Expr.Grouping expr)
@@ -280,7 +287,15 @@ namespace Lox
         public object? VisitAssign(Expr.Assign expr)
         {
             var value = Evaluate(expr.Value);
-            _environment.Put(expr.Name, value);
+
+            if(_locals.TryGetValue(expr, out int distance))
+            {
+                _environment.PutAt(distance, expr.Name, value);
+            }
+            else
+            {
+                Globals.Put(expr.Name, value);
+            }
             return value;
         }
 
@@ -321,6 +336,18 @@ namespace Lox
         public object? VisitBreak(Stmt.Break stmt)
         {
             throw new BreakException();
+        }
+
+        private object? LookUpVariable(Token name, Expr expr)
+        {
+            if(_locals.TryGetValue(expr, out int distance))
+            {
+                return _environment.GetAt(distance);
+            }
+            else
+            {
+                return Globals.Get(name);
+            }
         }
     }
 }

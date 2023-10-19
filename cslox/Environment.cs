@@ -5,7 +5,7 @@ namespace Lox
         private readonly Environment? _parent;
         private readonly Dictionary<string, object?> values = new();
 
-        public Environment? parent => _parent;
+        public Environment? Parent => _parent;
 
         public Environment()
         {
@@ -51,6 +51,43 @@ namespace Lox
             {
                 throw new RuntimeException(token, $"Undefined variable '${token.Lexeme}'.");
             }
+        }
+
+        public object? GetAt(int distance, Token name)
+        {
+            var ans = Ancestor(distance);
+
+            if (ans.values.TryGetValue(name.Lexeme, out object? value))
+            {
+                return value;
+            }
+
+            throw new RuntimeException(name, $"Undefined variable '{name.Lexeme}'.");
+        }
+
+        public void PutAt(int distance, Token name, object? value)
+        {
+            var ans = Ancestor(distance);
+
+            if (ans.values.ContainsKey(name.Lexeme))
+            {
+                ans.values[name.Lexeme] = value;
+            }
+
+            throw new RuntimeException(name, $"Undefined variable '{name.Lexeme}'.");
+        }
+
+        private Environment Ancestor(int distance)
+        {
+            Environment? env = this;
+            for (int i = 0; i < distance; i++)
+            {
+                env = env?._parent;
+            }
+
+            System.Diagnostics.Debug.Assert(env != null);
+
+            return env;
         }
     }
 }

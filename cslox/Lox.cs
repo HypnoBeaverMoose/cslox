@@ -67,13 +67,19 @@ namespace Lox
 
             if (!hadError)
             {
-                if(REPLHelper.TryGetSingleExpression(statements, out Expr? expression))
+
+                var resolver = new Resolver(_interpreter);
+                resolver.Resolve(statements);
+                if (!hadError)
                 {
-                    Console.WriteLine(_interpreter.Evaluate(expression));
-                }
-                else
-                {
-                    _interpreter.Interpret(statements);
+                    if (REPLHelper.TryGetSingleExpression(statements, out Expr? expression))
+                    {
+                        Console.WriteLine(_interpreter.Evaluate(expression));
+                    }
+                    else
+                    {
+                        _interpreter.Interpret(statements);
+                    }
                 }
             }
         }
