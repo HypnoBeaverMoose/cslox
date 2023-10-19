@@ -11,7 +11,7 @@ namespace Lox
 
         private int _nestedLoops = 0;
 
-        private readonly List<Dictionary<string, bool>> _scopes = new();
+        private readonly List<Dictionary<Token, VariableState>> _scopes = new();
 
         public Resolver(Interpreter interpreter)
         {
@@ -166,7 +166,7 @@ namespace Lox
 
         public object? VisitVariable(Expr.Variable expr)
         {
-            if (_scopes.Count > 0 && _scopes[^1].TryGetValue(expr.Name.Lexeme, out bool val) && !val)
+            if (_scopes.Count > 0 && _scopes[^1].TryGetValue(expr.Name, out VariableState val) && val == VariableState.DECLARED)
             {
                 Lox.Error(expr.Name, "Can't read local variable in it's own initializer");
             }
@@ -187,9 +187,10 @@ namespace Lox
         {
             for (int i = _scopes.Count - 1; i >= 0; i--)
             {
-                if (_scopes[i].ContainsKey(name.Lexeme))
+                if (_scopes[i].ContainsKey(name))
                 {
                     _interpreter.Resolve(expr, _scopes.Count - 1 - i);
+                    _scopes[i][name] = VariableState.USED;
                 }
             }
         }
@@ -215,7 +216,7 @@ namespace Lox
         {
             if (_scopes.Count > 0)
             {
-                if (!_scopes[^1].TryAdd(name.Lexeme, false))
+                if (!_scopes[^1].TryAdd(name, VariableState.DECLARED))
                 {
                     Lox.Error(name, "Already a variable with this name in this scope.");
                 }
@@ -226,17 +227,24 @@ namespace Lox
         {
             if (_scopes.Count > 0)
             {
-                _scopes[^1][name.Lexeme] = true;
+                _scopes[^1][name] = VariableState.DEFINED;
             }
         }
 
         private void BeginScope()
         {
-            _scopes.Add(new Dictionary<string, bool>());
+            _scopes.Add(new Dictionary<Token, VariableState>());
         }
 
         private void EndScope()
         {
+            foreach (var kvp in _scopes[^1])
+            {
+                if (kvp.Value != VariableState.USED)
+                {
+                    Lox.Error(kvp.Key, "Unused variable detected");
+                }
+            }
             _scopes.RemoveAt(_scopes.Count - 1);
         }
 
@@ -304,6 +312,14 @@ namespace Lox
         {
             NONE,
             FUNCTION
+        }
+
+        private enum VariableState
+        {
+            NONE,
+            DECLARED,
+            DEFINED,
+            USED
         }
     }
 }
