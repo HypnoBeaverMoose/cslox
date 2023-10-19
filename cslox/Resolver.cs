@@ -9,6 +9,8 @@ namespace Lox
 
         private FunctionType _currentFunction = FunctionType.NONE;
 
+        private int _nestedLoops = 0;
+
         private readonly List<Dictionary<string, bool>> _scopes = new();
 
         public Resolver(Interpreter interpreter)
@@ -97,7 +99,10 @@ namespace Lox
         public object? VisitWhile(Stmt.While stmt)
         {
             Resolve(stmt.Condition);
-            Resolve(stmt.Body);
+            using (new LoopBlock(this))
+            {
+                Resolve(stmt.Body);
+            }
             return null;
         }
 
@@ -120,6 +125,10 @@ namespace Lox
 
         public object? VisitBreak(Stmt.Break stmt)
         {
+            if (_nestedLoops == 0)
+            {
+                Lox.Error(stmt.Keyword, "Expect 'break;' statements only inside loops");
+            }
             return null;
         }
 
@@ -272,6 +281,22 @@ namespace Lox
             public void Dispose()
             {
                 _resolver._currentFunction = _functionCache;
+            }
+        }
+
+        private struct LoopBlock : IDisposable
+        {
+            private Resolver _resolver;
+
+            public LoopBlock(Resolver resolver)
+            {
+                _resolver = resolver;
+                _resolver._nestedLoops++;
+            }
+
+            public void Dispose()
+            {
+                _resolver._nestedLoops--;
             }
         }
 

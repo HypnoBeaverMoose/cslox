@@ -4,7 +4,6 @@ namespace Lox
     {
         public readonly Environment Globals = new();
 
-
         private Dictionary<Expr, int> _locals = new();
         private Environment _environment;
 
