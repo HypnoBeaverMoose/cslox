@@ -258,6 +258,13 @@ namespace Lox
             expr.Accept(this);
         }
 
+        public object? VisitClass(Stmt.Class stmt)
+        {
+            Declare(stmt.Name);
+            Define(stmt.Name);
+            return null;
+        }
+
         private struct ScopeBlock : IDisposable
         {
             private Resolver _resolver;

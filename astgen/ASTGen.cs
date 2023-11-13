@@ -29,6 +29,7 @@ namespace ASTGen
             DefineAST(outputDir, "Stmt",
             new string[]
             {
+                "Class : Token Name, List<Stmt.Function> Methods",
                 "If : Expr Condition, Stmt ThenBranch, Stmt? ElseBranch",
                 "Block : List<Stmt> Statements",
                 "Expression : Expr Expr",

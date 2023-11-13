@@ -1,3 +1,5 @@
+using System.Buffers;
+
 namespace Lox
 {
     public class Parser
@@ -46,7 +48,7 @@ namespace Lox
             }
         }
 
-        private Stmt FunctionDeclaration(string kind)
+        private Stmt.Function FunctionDeclaration(string kind)
         {
             var name = Consume(TokenType.IDENTIFIER, $"Expect, {kind} name.");
 
@@ -96,6 +98,10 @@ namespace Lox
             {
                 return new Stmt.Block { Statements = BlockStatement() };
             }
+            else if(Match(TokenType.CLASS))
+            {
+                return ClassDeclaration();
+            }
             else if (Match(TokenType.IF))
             {
                 return IfStatement();
@@ -116,6 +122,23 @@ namespace Lox
             {
                 return ExpressionStatement();
             }
+        }
+
+        private Stmt ClassDeclaration()
+        {
+            Token name = Consume(TokenType.IDENTIFIER, "Expect class name.");
+
+            Consume(TokenType.LEFT_BRACE, "Expect '{' before class body.");
+
+            var methods = new List<Stmt.Function>();
+            while(!Check(TokenType.RIGHT_BRACE) && !_isAtEnd)
+            {
+                methods.Add(FunctionDeclaration("method"));
+            }
+
+            Consume(TokenType.RIGHT_BRACE, "Expect '{' after class body.");
+
+            return new Stmt.Class {Name = name, Methods = methods };
         }
 
         private Stmt BreakStatement()

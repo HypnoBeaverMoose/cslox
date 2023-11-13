@@ -7,6 +7,8 @@ namespace Lox
 
         public interface Visitor<T>
         {
+            T VisitClass(Class stmt);
+
             T VisitIf(If stmt);
 
             T VisitBlock(Block stmt);
@@ -25,6 +27,18 @@ namespace Lox
 
             T VisitWhile(While stmt);
 
+        }
+
+        public class Class : Stmt
+        {
+            public Token Name;
+
+            public List<Stmt.Function> Methods;
+
+            public override T Accept<T>(Visitor<T> visitor)
+            {
+                return visitor.VisitClass(this);
+            }
         }
 
         public class If : Stmt

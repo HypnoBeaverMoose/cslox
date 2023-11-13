@@ -348,5 +348,13 @@ namespace Lox
                 return Globals.Get(name);
             }
         }
+
+        public object? VisitClass(Stmt.Class stmt)
+        {
+            _environment.Define(stmt.Name.Lexeme, null);
+            var loxClass = new LoxClass(stmt.Name.Lexeme);
+            _environment.Put(stmt.Name, loxClass);
+            return null;
+        }
     }
 }
