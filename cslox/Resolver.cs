@@ -268,6 +268,13 @@ namespace Lox
             return null;
         }
 
+        public object? VisitSet(Expr.Set expr)
+        {
+            Resolve(expr.Value);
+            Resolve(expr.Obj);
+            return null;
+        }
+
         private struct ScopeBlock : IDisposable
         {
             private Resolver _resolver;

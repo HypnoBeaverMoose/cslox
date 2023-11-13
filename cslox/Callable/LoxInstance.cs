@@ -1,3 +1,4 @@
+
 namespace Lox
 {
     public class LoxInstance
@@ -26,6 +27,11 @@ namespace Lox
         public override string ToString()
         {
             return $"{_class.Name} instance";
+        }
+
+        public void Set(Token name, object? value)
+        {
+            _properties[name.Lexeme] = value;
         }
     }
 }

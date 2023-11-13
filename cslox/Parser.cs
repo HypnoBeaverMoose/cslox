@@ -285,6 +285,11 @@ namespace Lox
                     var name = variable.Name;
                     return new Expr.Assign { Name = name, Value = value };
                 }
+                else if (expr is Expr.Get getter)
+                {
+                    return new Expr.Set { Obj = getter, Name = getter.Name, Value = value };
+                }
+
                 Error(token, "Invalid assignment target");
             }
 
@@ -401,7 +406,7 @@ namespace Lox
                 {
                     expr = FinishCall(expr);
                 }
-                else if(Match(TokenType.DOT))
+                else if (Match(TokenType.DOT))
                 {
                     var name = Consume(TokenType.IDENTIFIER, "Expect property name after '.'");
                 }

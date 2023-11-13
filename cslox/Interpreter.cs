@@ -367,5 +367,19 @@ namespace Lox
 
             throw new RuntimeException(expr.Name, "Only instances have properties.");
         }
+
+        public object? VisitSet(Expr.Set expr)
+        {
+            var target = Evaluate(expr.Obj);
+
+            if (target is LoxInstance loxInstance)
+            {
+                var value = Evaluate(expr.Value);
+                loxInstance.Set(expr.Name, value);
+                return value;
+            }
+
+            throw new RuntimeException(expr.Name, "Only instances have fields.");
+        }
     }
 }
