@@ -15,6 +15,8 @@ namespace Lox
 
             T VisitCall(Call expr);
 
+            T VisitGet(Get expr);
+
             T VisitGrouping(Grouping expr);
 
             T VisitLiteral(Literal expr);
@@ -80,6 +82,18 @@ namespace Lox
             public override T Accept<T>(Visitor<T> visitor)
             {
                 return visitor.VisitCall(this);
+            }
+        }
+
+        public class Get : Expr
+        {
+            public Expr Obj;
+
+            public Token Name;
+
+            public override T Accept<T>(Visitor<T> visitor)
+            {
+                return visitor.VisitGet(this);
             }
         }
 

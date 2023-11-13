@@ -98,7 +98,7 @@ namespace Lox
             {
                 return new Stmt.Block { Statements = BlockStatement() };
             }
-            else if(Match(TokenType.CLASS))
+            else if (Match(TokenType.CLASS))
             {
                 return ClassDeclaration();
             }
@@ -131,14 +131,14 @@ namespace Lox
             Consume(TokenType.LEFT_BRACE, "Expect '{' before class body.");
 
             var methods = new List<Stmt.Function>();
-            while(!Check(TokenType.RIGHT_BRACE) && !_isAtEnd)
+            while (!Check(TokenType.RIGHT_BRACE) && !_isAtEnd)
             {
                 methods.Add(FunctionDeclaration("method"));
             }
 
             Consume(TokenType.RIGHT_BRACE, "Expect '{' after class body.");
 
-            return new Stmt.Class {Name = name, Methods = methods };
+            return new Stmt.Class { Name = name, Methods = methods };
         }
 
         private Stmt BreakStatement()
@@ -395,9 +395,20 @@ namespace Lox
         {
             var expr = Primary();
 
-            while (Match(TokenType.LEFT_PAREN))
+            while (true)
             {
-                expr = FinishCall(expr);
+                if (Match(TokenType.LEFT_PAREN))
+                {
+                    expr = FinishCall(expr);
+                }
+                else if(Match(TokenType.DOT))
+                {
+                    var name = Consume(TokenType.IDENTIFIER, "Expect property name after '.'");
+                }
+                else
+                {
+                    break;
+                }
             }
 
             return expr;

@@ -19,6 +19,7 @@ namespace ASTGen
                 "Ternary : Expr Condition, Token Operator, Expr Left, Expr Right",
                 "Binary : Expr Left, Token Operator, Expr Right",
                 "Call: Expr Callee, Token Paren, List<Expr> Arguments",
+                "Get : Expr Obj, Token Name",
                 "Grouping : Expr Expression",
                 "Literal : object? Value",
                 "Logical : Expr Left, Token Operator, Expr Right",

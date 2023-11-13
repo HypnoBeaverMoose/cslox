@@ -287,7 +287,7 @@ namespace Lox
         {
             var value = Evaluate(expr.Value);
 
-            if(_locals.TryGetValue(expr, out int distance))
+            if (_locals.TryGetValue(expr, out int distance))
             {
                 _environment.PutAt(distance, expr.Name, value);
             }
@@ -339,7 +339,7 @@ namespace Lox
 
         private object? LookUpVariable(Token name, Expr expr)
         {
-            if(_locals.TryGetValue(expr, out int distance))
+            if (_locals.TryGetValue(expr, out int distance))
             {
                 return _environment.GetAt(name, distance);
             }
@@ -355,6 +355,17 @@ namespace Lox
             var loxClass = new LoxClass(stmt.Name.Lexeme);
             _environment.Put(stmt.Name, loxClass);
             return null;
+        }
+
+        public object? VisitGet(Expr.Get expr)
+        {
+            var obj = Evaluate(expr);
+            if (obj is LoxInstance loxInstance)
+            {
+                return loxInstance.Get(expr.Name);
+            }
+
+            throw new RuntimeException(expr.Name, "Only instances have properties.");
         }
     }
 }

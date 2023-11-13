@@ -1,6 +1,3 @@
-using System.Resources;
-using System.Runtime.CompilerServices;
-
 namespace Lox
 {
     public class Resolver : Expr.Visitor<object?>, Stmt.Visitor<object?>
@@ -262,6 +259,12 @@ namespace Lox
         {
             Declare(stmt.Name);
             Define(stmt.Name);
+            return null;
+        }
+
+        public object? VisitGet(Expr.Get expr)
+        {
+            Resolve(expr.Obj);
             return null;
         }
 
