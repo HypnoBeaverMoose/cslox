@@ -24,6 +24,7 @@ namespace ASTGen
                 "Literal : object? Value",
                 "Logical : Expr Left, Token Operator, Expr Right",
                 "Set : Expr Obj, Token Name, Expr Value",
+                "This : Token Keyword",
                 "Unary : Token Operator, Expr Right",
                 "Variable : Token Name",
             });

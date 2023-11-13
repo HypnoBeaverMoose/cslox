@@ -103,7 +103,7 @@ namespace Lox
 
         public static void RuntimeError(RuntimeException re)
         {
-            Console.Error.WriteLine(re.Message + $"\n [line{re.Token.Line}]");
+            Console.Error.WriteLine(re.Message + $"\n [line{re.Token.Value.Line}]");
             hadRuntimeError = true;
         }
     }

@@ -25,6 +25,8 @@ namespace Lox
 
             T VisitSet(Set expr);
 
+            T VisitThis(This expr);
+
             T VisitUnary(Unary expr);
 
             T VisitVariable(Variable expr);
@@ -144,6 +146,16 @@ namespace Lox
             public override T Accept<T>(Visitor<T> visitor)
             {
                 return visitor.VisitSet(this);
+            }
+        }
+
+        public class This : Expr
+        {
+            public Token Keyword;
+
+            public override T Accept<T>(Visitor<T> visitor)
+            {
+                return visitor.VisitThis(this);
             }
         }
 

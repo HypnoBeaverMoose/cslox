@@ -260,9 +260,15 @@ namespace Lox
             Declare(stmt.Name);
             Define(stmt.Name);
 
-            foreach (var method in stmt.Methods)
+            using (new ScopeBlock(this))
             {
-                ResolveFunction(method, FunctionType.METHOD);
+                var thisToken = new Token(TokenType.THIS, "this", "this", -1);
+                _scopes[^1][thisToken] = VariableState.USED;
+
+                foreach (var method in stmt.Methods)
+                {
+                    ResolveFunction(method, FunctionType.METHOD);
+                }
             }
 
             return null;
@@ -278,6 +284,12 @@ namespace Lox
         {
             Resolve(expr.Value);
             Resolve(expr.Obj);
+            return null;
+        }
+
+        public object? VisitThis(Expr.This expr)
+        {
+            ResolveLocal(expr, expr.Keyword);
             return null;
         }
 

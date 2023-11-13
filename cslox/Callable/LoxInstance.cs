@@ -20,7 +20,7 @@ namespace Lox
             }
             else if (_class.TryGetMethod(name.Lexeme, out LoxFunction? loxFunction))
             {
-                return loxFunction;
+                return loxFunction?.Bind(this);
             }
             else
             {

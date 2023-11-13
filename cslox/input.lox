@@ -1,26 +1,12 @@
-class Bacon {
-  eat() {
-    print "Crunch crunch crunch!";
+class Bacon 
+{
+  x3() 
+  {
+    return this.word + " " + this.word + " " + this.word;
   }
 }
+
 var bacon = Bacon();
-bacon.eat(); // Prints "Crunch crunch crunch!".
+bacon.word = "word";
 
-/* 
-var a = 0;
-while (a < 10)
-{
-    print "a " + a;
-
-    a = a + 1;
-
-    for (var i = 0; i < 10; i = i + 1)
-    {
-        print "i " + i;
-        if( i >= 5)
-        {
-            break;
-        }
-    }
-}
-*/
+print bacon.x3();

@@ -385,5 +385,10 @@ namespace Lox
 
             throw new RuntimeException(expr.Name, "Only instances have fields.");
         }
+
+        public object? VisitThis(Expr.This expr)
+        {
+            return LookUpVariable(expr.Keyword, expr);
+        }
     }
 }

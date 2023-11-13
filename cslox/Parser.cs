@@ -287,7 +287,7 @@ namespace Lox
                 }
                 else if (expr is Expr.Get getter)
                 {
-                    return new Expr.Set { Obj = getter, Name = getter.Name, Value = value };
+                    return new Expr.Set { Obj = getter.Obj, Name = getter.Name, Value = value };
                 }
 
                 Error(token, "Invalid assignment target");
@@ -441,7 +441,8 @@ namespace Lox
 
         private Expr Primary()
         {
-            if (Match(TokenType.FALSE, TokenType.TRUE, TokenType.NIL, TokenType.NUMBER, TokenType.STRING, TokenType.IDENTIFIER))
+            if (Match(TokenType.FALSE, TokenType.TRUE, TokenType.NIL,
+                        TokenType.NUMBER, TokenType.STRING, TokenType.IDENTIFIER, TokenType.THIS))
             {
                 var token = Previous();
                 switch (token.TokenType)
@@ -457,6 +458,8 @@ namespace Lox
                         return new Expr.Literal { Value = token.Literal };
                     case TokenType.IDENTIFIER:
                         return new Expr.Variable { Name = token };
+                    case TokenType.THIS:
+                        return new Expr.This { Keyword = token };
                 }
             }
 
