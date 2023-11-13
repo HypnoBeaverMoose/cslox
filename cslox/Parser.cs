@@ -409,6 +409,7 @@ namespace Lox
                 else if (Match(TokenType.DOT))
                 {
                     var name = Consume(TokenType.IDENTIFIER, "Expect property name after '.'");
+                    expr = new Expr.Get { Obj = expr, Name = name };
                 }
                 else
                 {

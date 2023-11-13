@@ -14,9 +14,13 @@ namespace Lox
 
         public object? Get(Token name)
         {
-            if(_properties.TryGetValue(name.Lexeme, out object? val))
+            if (_properties.TryGetValue(name.Lexeme, out object? val))
             {
                 return val;
+            }
+            else if (_class.TryGetMethod(name.Lexeme, out LoxFunction? loxFunction))
+            {
+                return loxFunction;
             }
             else
             {

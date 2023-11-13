@@ -259,6 +259,12 @@ namespace Lox
         {
             Declare(stmt.Name);
             Define(stmt.Name);
+
+            foreach (var method in stmt.Methods)
+            {
+                ResolveFunction(method, FunctionType.METHOD);
+            }
+
             return null;
         }
 
@@ -328,7 +334,8 @@ namespace Lox
         private enum FunctionType
         {
             NONE,
-            FUNCTION
+            FUNCTION,
+            METHOD
         }
 
         private enum VariableState

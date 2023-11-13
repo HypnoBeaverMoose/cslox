@@ -352,14 +352,18 @@ namespace Lox
         public object? VisitClass(Stmt.Class stmt)
         {
             _environment.Define(stmt.Name.Lexeme, null);
-            var loxClass = new LoxClass(stmt.Name.Lexeme);
+
+            var loxClass = new LoxClass(stmt.Name.Lexeme,
+                            stmt.Methods.ToDictionary(m => m.Name.Lexeme,
+                                                        m => new LoxFunction(m, _environment)));
+
             _environment.Put(stmt.Name, loxClass);
             return null;
         }
 
         public object? VisitGet(Expr.Get expr)
         {
-            var obj = Evaluate(expr);
+            var obj = Evaluate(expr.Obj);
             if (obj is LoxInstance loxInstance)
             {
                 return loxInstance.Get(expr.Name);
