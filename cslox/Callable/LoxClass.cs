@@ -3,7 +3,9 @@ namespace Lox
 {
     public class LoxClass : ILoxCallable
     {
-        public int Arity => 0;
+        private const string _initMethodName = "init";
+
+        public int Arity => TryGetMethod(_initMethodName, out LoxFunction? initMethod) ? (initMethod?.Arity ?? 0) : 0;
 
         public readonly string Name;
 
@@ -13,6 +15,7 @@ namespace Lox
         {
             Name = name;
             _methods = new Dictionary<string, LoxFunction>(methods);
+
         }
 
         public bool TryGetMethod(string name, out LoxFunction? loxFunction)
@@ -22,7 +25,14 @@ namespace Lox
 
         public object Call(Interpreter interpreter, List<object?> arguments)
         {
-            return new LoxInstance(this);
+            var instance =  new LoxInstance(this);
+
+            if(TryGetMethod(_initMethodName, out LoxFunction? initMethod))
+            {
+                initMethod?.Bind(instance).Call(interpreter, arguments);
+            }
+
+            return instance;
         }
 
         public override string ToString()
