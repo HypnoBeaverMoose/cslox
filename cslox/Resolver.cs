@@ -6,6 +6,8 @@ namespace Lox
 
         private FunctionType _currentFunction = FunctionType.NONE;
 
+        private ClassType _currentClass = ClassType.NONE;
+
         private int _nestedLoops = 0;
 
         private readonly List<Dictionary<Token, VariableState>> _scopes = new();
@@ -260,17 +262,19 @@ namespace Lox
             Declare(stmt.Name);
             Define(stmt.Name);
 
-            using (new ScopeBlock(this))
+            using (new ClassBlock(this, ClassType.CLASS))
             {
-                var thisToken = new Token(TokenType.THIS, "this", "this", -1);
-                _scopes[^1][thisToken] = VariableState.USED;
-
-                foreach (var method in stmt.Methods)
+                using (new ScopeBlock(this))
                 {
-                    ResolveFunction(method, FunctionType.METHOD);
+                    var thisToken = new Token(TokenType.THIS, "this", "this", -1);
+                    _scopes[^1][thisToken] = VariableState.USED;
+
+                    foreach (var method in stmt.Methods)
+                    {
+                        ResolveFunction(method, FunctionType.METHOD);
+                    }
                 }
             }
-
             return null;
         }
 
@@ -289,6 +293,11 @@ namespace Lox
 
         public object? VisitThis(Expr.This expr)
         {
+            if (_currentClass == ClassType.NONE)
+            {
+                Lox.Error(expr.Keyword, "Can't use 'this' outside of class");
+            }
+
             ResolveLocal(expr, expr.Keyword);
             return null;
         }
@@ -327,6 +336,24 @@ namespace Lox
             }
         }
 
+        private struct ClassBlock : IDisposable
+        {
+            private Resolver _resolver;
+            private ClassType _classCache;
+
+            public ClassBlock(Resolver resolver, ClassType type)
+            {
+                _resolver = resolver;
+                _classCache = _resolver._currentClass;
+                _resolver._currentClass = type;
+            }
+
+            public void Dispose()
+            {
+                _resolver._currentClass = _classCache;
+            }
+        }
+
         private struct LoopBlock : IDisposable
         {
             private Resolver _resolver;
@@ -349,6 +376,13 @@ namespace Lox
             FUNCTION,
             METHOD
         }
+
+        private enum ClassType
+        {
+            NONE,
+            CLASS
+        }
+
 
         private enum VariableState
         {

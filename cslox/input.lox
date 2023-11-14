@@ -9,4 +9,6 @@ class Bacon
 var bacon = Bacon();
 bacon.word = "word";
 
+print this.word;
+
 print bacon.x3();
