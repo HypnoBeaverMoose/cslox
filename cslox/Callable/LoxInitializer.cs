@@ -1,9 +1,11 @@
 ﻿
 namespace Lox
 {
-    public class LoxFunction : LoxFunctionBase
+    public class LoxInitializer : LoxFunctionBase
     {
-        public LoxFunction(Stmt.Function function, Environment closure) : base(function, closure)
+        private readonly Token _this = new Token(TokenType.THIS, "this", "this", -1);
+
+        public LoxInitializer(Stmt.Function function, Environment closure) : base(function, closure)
         {
         }
 
@@ -19,12 +21,18 @@ namespace Lox
             {
                 interpreter.ExecuteBlock(_function.Body, env);
             }
-            catch(ReturnException ret)
+            catch (ReturnException)
             {
-                return ret.Value;
+                return _closure.GetAt(_this, 0);
             }
 
-            return null;
+            return _closure.GetAt(_this, 0);
         }
+
+        public override string ToString()
+        {
+            return $"<method {_function.Name.Lexeme}>";
+        }
+
     }
 }

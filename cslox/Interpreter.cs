@@ -85,7 +85,7 @@ namespace Lox
 
         public object? VisitFunction(Stmt.Function stmt)
         {
-            var function = new LoxFunction(stmt, _environment);
+            var function = LoxFunctionBase.Create(stmt, _environment);
             _environment.Define(stmt.Name.Lexeme, function);
             return null;
         }
@@ -355,7 +355,7 @@ namespace Lox
 
             var loxClass = new LoxClass(stmt.Name.Lexeme,
                             stmt.Methods.ToDictionary(m => m.Name.Lexeme,
-                                                        m => new LoxFunction(m, _environment)));
+                                                        m => LoxFunctionBase.Create(m, _environment)));
 
             _environment.Put(stmt.Name, loxClass);
             return null;

@@ -90,8 +90,11 @@ namespace Lox
             if (stmt.Value != null)
             {
                 Resolve(stmt.Value);
+                if (_currentFunction == FunctionType.INITIALIZER)
+                {
+                    Lox.Error(stmt.Keyword, "Can't return a value from init");
+                }
             }
-
             return null;
         }
 
@@ -271,7 +274,8 @@ namespace Lox
 
                     foreach (var method in stmt.Methods)
                     {
-                        ResolveFunction(method, FunctionType.METHOD);
+                        ResolveFunction(method, method.Name.Lexeme == "init" ?
+                                                FunctionType.INITIALIZER : FunctionType.METHOD);
                     }
                 }
             }
@@ -374,6 +378,7 @@ namespace Lox
         {
             NONE,
             FUNCTION,
+            INITIALIZER,
             METHOD
         }
 

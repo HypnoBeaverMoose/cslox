@@ -18,7 +18,7 @@ namespace Lox
             {
                 return val;
             }
-            else if (_class.TryGetMethod(name.Lexeme, out LoxFunction? loxFunction))
+            else if (_class.TryGetMethod(name.Lexeme, out LoxFunctionBase? loxFunction))
             {
                 return loxFunction?.Bind(this);
             }

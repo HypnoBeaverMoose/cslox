@@ -1,14 +1,11 @@
 class Bacon 
 {
-  x3() 
+  init() 
   {
-    return this.word + " " + this.word + " " + this.word;
+    this.word = "word";
   }
 }
 
 var bacon = Bacon();
-bacon.word = "word";
 
-print this.word;
-
-print bacon.x3();
+print bacon.word;

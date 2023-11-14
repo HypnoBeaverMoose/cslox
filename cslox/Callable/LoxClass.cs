@@ -5,20 +5,20 @@ namespace Lox
     {
         private const string _initMethodName = "init";
 
-        public int Arity => TryGetMethod(_initMethodName, out LoxFunction? initMethod) ? (initMethod?.Arity ?? 0) : 0;
+        public int Arity => TryGetMethod(_initMethodName, out LoxFunctionBase? initMethod) ? (initMethod?.Arity ?? 0) : 0;
 
         public readonly string Name;
 
-        private readonly Dictionary<string, LoxFunction> _methods;
+        private readonly Dictionary<string, LoxFunctionBase> _methods;
 
-        public LoxClass(string name, Dictionary<string, LoxFunction> methods)
+        public LoxClass(string name, Dictionary<string, LoxFunctionBase> methods)
         {
             Name = name;
-            _methods = new Dictionary<string, LoxFunction>(methods);
+            _methods = new Dictionary<string, LoxFunctionBase>(methods);
 
         }
 
-        public bool TryGetMethod(string name, out LoxFunction? loxFunction)
+        public bool TryGetMethod(string name, out LoxFunctionBase? loxFunction)
         {
             return _methods.TryGetValue(name, out loxFunction);
         }
@@ -27,7 +27,7 @@ namespace Lox
         {
             var instance =  new LoxInstance(this);
 
-            if(TryGetMethod(_initMethodName, out LoxFunction? initMethod))
+            if(TryGetMethod(_initMethodName, out LoxFunctionBase? initMethod))
             {
                 initMethod?.Bind(instance).Call(interpreter, arguments);
             }
