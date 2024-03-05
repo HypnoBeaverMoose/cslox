@@ -2,7 +2,6 @@ namespace Lox
 {
     public abstract class Expr
     {
-
         public abstract T Accept<T>(Visitor<T> visitor);
 
         public interface Visitor<T>
@@ -31,7 +30,9 @@ namespace Lox
 
             T VisitVariable(Variable expr);
 
+
         }
+
 
         public class Assign : Expr
         {
@@ -39,11 +40,14 @@ namespace Lox
 
             public Expr Value;
 
+
+
             public override T Accept<T>(Visitor<T> visitor)
             {
                 return visitor.VisitAssign(this);
             }
         }
+
 
         public class Ternary : Expr
         {
@@ -55,11 +59,14 @@ namespace Lox
 
             public Expr Right;
 
+
+
             public override T Accept<T>(Visitor<T> visitor)
             {
                 return visitor.VisitTernary(this);
             }
         }
+
 
         public class Binary : Expr
         {
@@ -69,11 +76,14 @@ namespace Lox
 
             public Expr Right;
 
+
+
             public override T Accept<T>(Visitor<T> visitor)
             {
                 return visitor.VisitBinary(this);
             }
         }
+
 
         public class Call : Expr
         {
@@ -83,11 +93,14 @@ namespace Lox
 
             public List<Expr> Arguments;
 
+
+
             public override T Accept<T>(Visitor<T> visitor)
             {
                 return visitor.VisitCall(this);
             }
         }
+
 
         public class Get : Expr
         {
@@ -95,15 +108,20 @@ namespace Lox
 
             public Token Name;
 
+
+
             public override T Accept<T>(Visitor<T> visitor)
             {
                 return visitor.VisitGet(this);
             }
         }
 
+
         public class Grouping : Expr
         {
             public Expr Expression;
+
+
 
             public override T Accept<T>(Visitor<T> visitor)
             {
@@ -111,15 +129,19 @@ namespace Lox
             }
         }
 
+
         public class Literal : Expr
         {
             public object? Value;
+
+
 
             public override T Accept<T>(Visitor<T> visitor)
             {
                 return visitor.VisitLiteral(this);
             }
         }
+
 
         public class Logical : Expr
         {
@@ -129,11 +151,14 @@ namespace Lox
 
             public Expr Right;
 
+
+
             public override T Accept<T>(Visitor<T> visitor)
             {
                 return visitor.VisitLogical(this);
             }
         }
+
 
         public class Set : Expr
         {
@@ -143,15 +168,20 @@ namespace Lox
 
             public Expr Value;
 
+
+
             public override T Accept<T>(Visitor<T> visitor)
             {
                 return visitor.VisitSet(this);
             }
         }
 
+
         public class This : Expr
         {
             public Token Keyword;
+
+
 
             public override T Accept<T>(Visitor<T> visitor)
             {
@@ -159,11 +189,14 @@ namespace Lox
             }
         }
 
+
         public class Unary : Expr
         {
             public Token Operator;
 
             public Expr Right;
+
+
 
             public override T Accept<T>(Visitor<T> visitor)
             {
@@ -171,15 +204,19 @@ namespace Lox
             }
         }
 
+
         public class Variable : Expr
         {
             public Token Name;
+
+
 
             public override T Accept<T>(Visitor<T> visitor)
             {
                 return visitor.VisitVariable(this);
             }
         }
+
 
     }
 }

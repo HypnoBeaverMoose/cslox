@@ -1,4 +1,6 @@
 ﻿using System.Formats.Tar;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace ASTGen
 {
@@ -12,9 +14,9 @@ namespace ASTGen
                 System.Environment.Exit(64);
             }
             var outputDir = args[0];
-            DefineAST(outputDir, "Expr",
-            new string[]
-            {
+
+            WriteAST(outputDir, "Expr", BuildAST("Expr", new string[]
+                {
                 "Assign : Token Name, Expr Value",
                 "Ternary : Expr Condition, Token Operator, Expr Left, Expr Right",
                 "Binary : Expr Left, Token Operator, Expr Right",
@@ -27,10 +29,9 @@ namespace ASTGen
                 "This : Token Keyword",
                 "Unary : Token Operator, Expr Right",
                 "Variable : Token Name",
-            });
+                }));
 
-            DefineAST(outputDir, "Stmt",
-            new string[]
+            WriteAST(outputDir, "Stmt", BuildAST("Stmt", new string[]
             {
                 "Class : Token Name, List<Stmt.Function> Methods",
                 "If : Expr Condition, Stmt ThenBranch, Stmt? ElseBranch",
@@ -42,68 +43,166 @@ namespace ASTGen
                 "Return : Token Keyword, Expr Value",
                 "Var : Token Name, Expr Initializer",
                 "While : Expr Condition, Stmt Body"
-            });
+            }));
         }
 
-        public static void DefineAST(string outputDir, string baseClassName, IEnumerable<string> types)
+        private static void WriteAST(string outputDir, string baseClassName, string ast)
         {
-            System.IO.TextWriter tw = System.IO.File.CreateText(outputDir + "/" + baseClassName + ".cs");
-            tw.WriteLine("namespace Lox");
-            tw.WriteLine("{");
-            tw.WriteLine($"    public abstract class {baseClassName}");
-            tw.WriteLine("    {");
-
-            tw.WriteLine();
-            tw.WriteLine("        public abstract T Accept<T>(Visitor<T> visitor);");
-            tw.WriteLine();
-
-            DefineVisitor(tw, baseClassName, types.Select(t => t.Split(':')[0].Trim()).ToArray());
-
-            foreach (var type in types)
-            {
-                var split = type.Split(':', ',');
-                DefineType(tw, baseClassName, split[0].Trim(), split.Skip(1).ToArray());
-            }
-            tw.WriteLine("    }");
-            tw.WriteLine("}");
-            tw.Flush();
-            tw.Close();
+            var writer = System.IO.File.CreateText(outputDir + "/" + baseClassName + ".cs");
+            writer.Write(ast);
+            writer.Flush();
+            writer.Close();
         }
 
-        public static void DefineVisitor(TextWriter writer, string baseClassName, string[] types)
+        private static string BuildAST(string baseClassName, IEnumerable<string> types)
         {
-            writer.WriteLine("        public interface Visitor<T>");
-            writer.WriteLine("        {");
+            var typeArray = types.Select(t => t.Split(':')[0].Trim()).ToArray();
+            var ast = Regex.Replace(astTemplate, "{visitorMethods}", BuildVisitorMethods(baseClassName, typeArray));
+            ast = Regex.Replace(ast, "{types}", BuildTypes(types));
+            ast = Regex.Replace(ast, "{className}", baseClassName);
 
+            return ast;
+        }
+
+        private static string BuildVisitorMethods(string baseClassName, string[] types)
+        {
+            var sBuilder = new StringBuilder();
             foreach (var type in types)
             {
                 var trimmedType = type.Trim();
-                writer.WriteLine($"            T Visit{trimmedType}({trimmedType} {baseClassName.ToLower()});");
-                writer.WriteLine();
+                var result = Regex.Replace(visitorMethodTemplate, "{type}", type);
+                result = Regex.Replace(result, "{className}", baseClassName.ToLower());
+                sBuilder.AppendLine(result).AppendLine();
             }
-
-            writer.WriteLine("        }");
-            writer.WriteLine();
+            return sBuilder.ToString();
         }
 
-        public static void DefineType(TextWriter writer, string baseClassName, string className, string[] fields)
+        private static string BuildTypes(IEnumerable<string> types)
         {
-            writer.WriteLine($"        public class {className} : {baseClassName}");
-            writer.WriteLine("        {");
+            var builder = new StringBuilder();
+            foreach (var typ in types)
+            {
+                var split = typ.Split(':', ',');
+                var result = BuildType(split[0].Trim(), split.Skip(1).ToArray());
+                builder.AppendLine(result).AppendLine();
+            }
+
+            return builder.ToString();
+        }
+
+        private static string BuildType(string className, string[] fields)
+        {
+            var type = Regex.Replace(typeTemplate, "{type}", className);
+            type = Regex.Replace(type, "{fields}", BuildTypeFields(fields));
+            type = Regex.Replace(type, "{constructor}", BuildTypeConstructor());
+            return type;
+        }
+
+        private static string BuildTypeFields(string[] fields)
+        {
+            var sBuilder = new StringBuilder();
             foreach (var field in fields)
             {
-                writer.WriteLine($"            public {field.Trim()};");
-                writer.WriteLine();
+                sBuilder.
+                AppendLine(Regex.Replace(typeFieldTemplate, "{field}", field.Trim())).
+                AppendLine();
             }
-
-            writer.WriteLine("            public override T Accept<T>(Visitor<T> visitor)");
-            writer.WriteLine("            {");
-            writer.WriteLine($"                return visitor.Visit{className}(this);");
-            writer.WriteLine("            }");
-
-            writer.WriteLine("        }");
-            writer.WriteLine();
+            return sBuilder.ToString();
         }
+
+        private static string BuildTypeConstructor()
+        {
+            return "";
+        }
+
+        // public static void DefineAST(string outputDir, string baseClassName, IEnumerable<string> types)
+        // {
+        //     System.IO.TextWriter writer = System.IO.File.CreateText(outputDir + "/" + baseClassName + ".cs");
+        //     writer.WriteLine("namespace Lox");
+        //     writer.WriteLine("{");
+        //     writer.WriteLine($"    public abstract class {baseClassName}");
+        //     writer.WriteLine("    {");
+
+        //     writer.WriteLine();
+        //     writer.WriteLine("        public abstract T Accept<T>(Visitor<T> visitor);");
+        //     writer.WriteLine();
+
+        //     DefineVisitor(writer, baseClassName, types.Select(t => t.Split(':')[0].Trim()).ToArray());
+
+        //     foreach (var type in types)
+        //     {
+        //         var split = type.Split(':', ',');
+        //         DefineType(writer, baseClassName, split[0].Trim(), split.Skip(1).ToArray());
+        //     }
+        //     writer.WriteLine("    }");
+        //     writer.WriteLine("}");
+        //     writer.Flush();
+        //     writer.Close();
+        // }
+
+        // public static void DefineVisitor(TextWriter writer, string baseClassName, string[] types)
+        // {
+        //     writer.WriteLine("        public interface Visitor<T>");
+        //     writer.WriteLine("        {");
+
+        //     foreach (var type in types)
+        //     {
+        //         var trimmedType = type.Trim();
+        //         writer.WriteLine($"            T Visit{trimmedType}({trimmedType} {baseClassName.ToLower()});");
+        //         writer.WriteLine();
+        //     }
+
+        //     writer.WriteLine("        }");
+        //     writer.WriteLine();
+        // }
+
+        // public static void DefineType(TextWriter writer, string baseClassName, string className, string[] fields)
+        // {
+        //     writer.WriteLine($"        public class {className} : {baseClassName}");
+        //     writer.WriteLine("        {");
+        //     foreach (var field in fields)
+        //     {
+        //         writer.WriteLine($"            public {field.Trim()};");
+        //         writer.WriteLine();
+        //     }
+
+        //     writer.WriteLine("            public override T Accept<T>(Visitor<T> visitor)");
+        //     writer.WriteLine("            {");
+        //     writer.WriteLine($"                return visitor.Visit{className}(this);");
+        //     writer.WriteLine("            }");
+
+        //     writer.WriteLine("        }");
+        //     writer.WriteLine();
+        // }
+
+        private static string astTemplate = @"namespace Lox
+{
+    public abstract class {className}
+    {
+        public abstract T Accept<T>(Visitor<T> visitor);
+
+        public interface Visitor<T>
+        {
+{visitorMethods}
+        }
+
+{types}
+    }
+}";
+        private static string visitorMethodTemplate =
+                        @"            T Visit{type}({type} {className});";
+        private static string typeTemplate = @"
+        public class {type} : {className}
+        {
+{fields}
+{constructor}
+            public override T Accept<T>(Visitor<T> visitor)
+            {
+                return visitor.Visit{type}(this);
+            }
+        }";
+        private static string typeFieldTemplate =
+                @"            public {field};";
     }
 }
 
