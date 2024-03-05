@@ -21,7 +21,9 @@
             "preLaunchTask": "build",
             "program": "${workspaceFolder}/astgen/bin/Debug/net7.0/astgen.dll",
             "args": [
-                "../cslox/AST"
+                "../cslox/AST",
+                "templates/Expr.astdef",
+                "templates/Stmt.astdef"
             ],
             "cwd": "${workspaceFolder}/astgen",
             "console": "integratedTerminal",

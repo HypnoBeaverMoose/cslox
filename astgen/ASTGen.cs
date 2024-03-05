@@ -1,5 +1,4 @@
-﻿using System.Formats.Tar;
-using System.Text;
+﻿using System.Text;
 using System.Text.RegularExpressions;
 
 namespace ASTGen
@@ -36,42 +35,19 @@ namespace ASTGen
                 @"            public {field};";
         public static void Main(string[] args)
         {
-            if (args.Length != 1)
+            if (args.Length < 1)
             {
                 Console.WriteLine("Usage: astgen <output directory>");
                 System.Environment.Exit(64);
             }
+
             var outputDir = args[0];
-
-            WriteAST(outputDir, "Expr", BuildAST("Expr", new string[]
-                {
-                "Assign : Token Name, Expr Value",
-                "Ternary : Expr Condition, Token Operator, Expr Left, Expr Right",
-                "Binary : Expr Left, Token Operator, Expr Right",
-                "Call: Expr Callee, Token Paren, List<Expr> Arguments",
-                "Get : Expr Obj, Token Name",
-                "Grouping : Expr Expression",
-                "Literal : object? Value",
-                "Logical : Expr Left, Token Operator, Expr Right",
-                "Set : Expr Obj, Token Name, Expr Value",
-                "This : Token Keyword",
-                "Unary : Token Operator, Expr Right",
-                "Variable : Token Name",
-                }));
-
-            WriteAST(outputDir, "Stmt", BuildAST("Stmt", new string[]
+            for (int i = 1; i < args.Length; i++)
             {
-                "Class : Token Name, List<Stmt.Function> Methods",
-                "If : Expr Condition, Stmt ThenBranch, Stmt? ElseBranch",
-                "Block : List<Stmt> Statements",
-                "Expression : Expr Expr",
-                "Function : Token Name, List<Token> Parameters, List<Stmt> Body",
-                "Print : Expr Expr",
-                "Break : Token Keyword",
-                "Return : Token Keyword, Expr Value",
-                "Var : Token Name, Expr Initializer",
-                "While : Expr Condition, Stmt Body"
-            }));
+                var astDef = File.ReadAllText(args[i]).Split('\n');
+                var baseClassName = Path.GetFileNameWithoutExtension(args[i]);
+                WriteAST(outputDir, baseClassName, BuildAST(baseClassName, astDef));
+            }
         }
 
         private static void WriteAST(string outputDir, string baseClassName, string ast)
