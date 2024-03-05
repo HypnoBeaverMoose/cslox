@@ -6,6 +6,34 @@ namespace ASTGen
 {
     public static class ASTGen
     {
+        private static string _astTemplate = @"namespace Lox
+{
+    public abstract class {className}
+    {
+        public abstract T Accept<T>(Visitor<T> visitor);
+
+        public interface Visitor<T>
+        {
+{visitorMethods}
+        }
+
+{types}
+    }
+}";
+        private static string _visitorMethodTemplate =
+                        @"            T Visit{type}({type} {className});";
+        private static string _typeTemplate = @"
+        public class {type} : {className}
+        {
+{fields}
+{constructor}
+            public override T Accept<T>(Visitor<T> visitor)
+            {
+                return visitor.Visit{type}(this);
+            }
+        }";
+        private static string _typeFieldTemplate =
+                @"            public {field};";
         public static void Main(string[] args)
         {
             if (args.Length != 1)
@@ -57,7 +85,7 @@ namespace ASTGen
         private static string BuildAST(string baseClassName, IEnumerable<string> types)
         {
             var typeArray = types.Select(t => t.Split(':')[0].Trim()).ToArray();
-            var ast = Regex.Replace(astTemplate, "{visitorMethods}", BuildVisitorMethods(baseClassName, typeArray));
+            var ast = Regex.Replace(_astTemplate, "{visitorMethods}", BuildVisitorMethods(baseClassName, typeArray));
             ast = Regex.Replace(ast, "{types}", BuildTypes(types));
             ast = Regex.Replace(ast, "{className}", baseClassName);
 
@@ -70,7 +98,7 @@ namespace ASTGen
             foreach (var type in types)
             {
                 var trimmedType = type.Trim();
-                var result = Regex.Replace(visitorMethodTemplate, "{type}", type);
+                var result = Regex.Replace(_visitorMethodTemplate, "{type}", type);
                 result = Regex.Replace(result, "{className}", baseClassName.ToLower());
                 sBuilder.AppendLine(result).AppendLine();
             }
@@ -92,7 +120,7 @@ namespace ASTGen
 
         private static string BuildType(string className, string[] fields)
         {
-            var type = Regex.Replace(typeTemplate, "{type}", className);
+            var type = Regex.Replace(_typeTemplate, "{type}", className);
             type = Regex.Replace(type, "{fields}", BuildTypeFields(fields));
             type = Regex.Replace(type, "{constructor}", BuildTypeConstructor());
             return type;
@@ -104,7 +132,7 @@ namespace ASTGen
             foreach (var field in fields)
             {
                 sBuilder.
-                AppendLine(Regex.Replace(typeFieldTemplate, "{field}", field.Trim())).
+                AppendLine(Regex.Replace(_typeFieldTemplate, "{field}", field.Trim())).
                 AppendLine();
             }
             return sBuilder.ToString();
@@ -114,95 +142,6 @@ namespace ASTGen
         {
             return "";
         }
-
-        // public static void DefineAST(string outputDir, string baseClassName, IEnumerable<string> types)
-        // {
-        //     System.IO.TextWriter writer = System.IO.File.CreateText(outputDir + "/" + baseClassName + ".cs");
-        //     writer.WriteLine("namespace Lox");
-        //     writer.WriteLine("{");
-        //     writer.WriteLine($"    public abstract class {baseClassName}");
-        //     writer.WriteLine("    {");
-
-        //     writer.WriteLine();
-        //     writer.WriteLine("        public abstract T Accept<T>(Visitor<T> visitor);");
-        //     writer.WriteLine();
-
-        //     DefineVisitor(writer, baseClassName, types.Select(t => t.Split(':')[0].Trim()).ToArray());
-
-        //     foreach (var type in types)
-        //     {
-        //         var split = type.Split(':', ',');
-        //         DefineType(writer, baseClassName, split[0].Trim(), split.Skip(1).ToArray());
-        //     }
-        //     writer.WriteLine("    }");
-        //     writer.WriteLine("}");
-        //     writer.Flush();
-        //     writer.Close();
-        // }
-
-        // public static void DefineVisitor(TextWriter writer, string baseClassName, string[] types)
-        // {
-        //     writer.WriteLine("        public interface Visitor<T>");
-        //     writer.WriteLine("        {");
-
-        //     foreach (var type in types)
-        //     {
-        //         var trimmedType = type.Trim();
-        //         writer.WriteLine($"            T Visit{trimmedType}({trimmedType} {baseClassName.ToLower()});");
-        //         writer.WriteLine();
-        //     }
-
-        //     writer.WriteLine("        }");
-        //     writer.WriteLine();
-        // }
-
-        // public static void DefineType(TextWriter writer, string baseClassName, string className, string[] fields)
-        // {
-        //     writer.WriteLine($"        public class {className} : {baseClassName}");
-        //     writer.WriteLine("        {");
-        //     foreach (var field in fields)
-        //     {
-        //         writer.WriteLine($"            public {field.Trim()};");
-        //         writer.WriteLine();
-        //     }
-
-        //     writer.WriteLine("            public override T Accept<T>(Visitor<T> visitor)");
-        //     writer.WriteLine("            {");
-        //     writer.WriteLine($"                return visitor.Visit{className}(this);");
-        //     writer.WriteLine("            }");
-
-        //     writer.WriteLine("        }");
-        //     writer.WriteLine();
-        // }
-
-        private static string astTemplate = @"namespace Lox
-{
-    public abstract class {className}
-    {
-        public abstract T Accept<T>(Visitor<T> visitor);
-
-        public interface Visitor<T>
-        {
-{visitorMethods}
-        }
-
-{types}
-    }
-}";
-        private static string visitorMethodTemplate =
-                        @"            T Visit{type}({type} {className});";
-        private static string typeTemplate = @"
-        public class {type} : {className}
-        {
-{fields}
-{constructor}
-            public override T Accept<T>(Visitor<T> visitor)
-            {
-                return visitor.Visit{type}(this);
-            }
-        }";
-        private static string typeFieldTemplate =
-                @"            public {field};";
     }
 }
 
