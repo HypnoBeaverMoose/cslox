@@ -1,5 +1,3 @@
-using System.Buffers;
-
 namespace Lox
 {
     public static class Parser
@@ -8,42 +6,45 @@ namespace Lox
         private static int _current = 0;
         private static bool _isAtEnd => Peek().TokenType == TokenType.EOF;
 
-        public static List<Stmt> Parse(List<Token> tokens)
+        public static (List<Stmt>, List<LoxError>) Parse(List<Token> tokens)
         {
             _current = 0;
             _tokens.Clear();
             _tokens.AddRange(new List<Token>(tokens));
 
             var statements = new List<Stmt>();
+            var errors = new List<LoxError>();
+
             while (!_isAtEnd)
             {
-                statements.Add(Declaration());
+                try
+                {
+                    var statement = Declaration();
+                    statements.Add(statement);
+                }
+                catch (ParsingException e)
+                {
+                    errors.Add(e.Error);
+                    Synchronize();
+                }
             }
 
-            return statements;
+            return (statements, errors);
         }
 
         private static Stmt Declaration()
         {
-            try
+            if (Match(TokenType.VAR))
             {
-                if (Match(TokenType.VAR))
-                {
-                    return VariableDeclaration();
-                }
-                else if (Match(TokenType.FUN))
-                {
-                    return FunctionDeclaration("function");
-                }
-                else
-                {
-                    return Statement();
-                }
+                return VariableDeclaration();
             }
-            catch (ParsingException)
+            else if (Match(TokenType.FUN))
             {
-                Synchronize();
-                return null;
+                return FunctionDeclaration("function");
+            }
+            else
+            {
+                return Statement();
             }
         }
 
