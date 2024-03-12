@@ -13,13 +13,14 @@ namespace Lox
             Globals.Define("clock", new Clock());
         }
 
-        public void Resolve(Expr expr, int depth)
+        public void Interpret(IReadOnlyList<Stmt> statements, Dictionary<Expr, int> locals)
         {
-            _locals.Add(expr, depth);
-        }
+            _locals.Clear();
+            foreach (var local in locals)
+            {
+                _locals.Add(local.Key, local.Value);
+            }
 
-        public void Interpret(IReadOnlyList<Stmt> statements)
-        {
             try
             {
                 foreach (var statement in statements)

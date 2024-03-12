@@ -2,7 +2,7 @@ namespace Lox
 {
     public class Resolver : Expr.Visitor<object?>, Stmt.Visitor<object?>
     {
-        private readonly Interpreter _interpreter;
+        private readonly Dictionary<Expr, int> _locals = new();
 
         private FunctionType _currentFunction = FunctionType.NONE;
 
@@ -12,17 +12,15 @@ namespace Lox
 
         private readonly List<Dictionary<Token, VariableState>> _scopes = new();
 
-        public Resolver(Interpreter interpreter)
+        public Dictionary<Expr, int> Resolve(IReadOnlyList<Stmt> stmts)
         {
-            _interpreter = interpreter;
-        }
-
-        public void Resolve(IReadOnlyList<Stmt> stmts)
-        {
+            _locals.Clear();
             foreach (var stmt in stmts)
             {
                 Resolve(stmt);
             }
+
+            return _locals;
         }
 
         public object? VisitBlock(Stmt.Block stmt)
@@ -191,7 +189,7 @@ namespace Lox
             {
                 if (_scopes[i].ContainsKey(name))
                 {
-                    _interpreter.Resolve(expr, _scopes.Count - 1 - i);
+                    _locals.Add(expr, _scopes.Count - 1 - i);
                     _scopes[i][name] = VariableState.USED;
                 }
             }

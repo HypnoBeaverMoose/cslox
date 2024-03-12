@@ -8,6 +8,8 @@ namespace Lox
         private static bool hadRuntimeError = false;
         private static Interpreter _interpreter = new();
 
+        private static Resolver _resolver = new();
+
         public static void Main(string[] args)
         {
             switch (args.Length)
@@ -67,8 +69,7 @@ namespace Lox
 
             if (!hadError && errors.Count == 0)
             {
-                var resolver = new Resolver(_interpreter);
-                resolver.Resolve(statements);
+                var locals = _resolver.Resolve(statements);
 
                 if (!hadError)
                 {
@@ -78,7 +79,7 @@ namespace Lox
                     }
                     else
                     {
-                        _interpreter.Interpret(statements);
+                        _interpreter.Interpret(statements, locals);
                     }
                 }
             }
