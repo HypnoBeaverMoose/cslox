@@ -58,7 +58,9 @@ namespace Lox
 
         private static void Run(string text)
         {
-            var tokens = Scanner.Scan(text);
+            var errors = new List<LoxError>();
+            var (tokens, scanErrors) = Scanner.Scan(text);
+            errors.AddRange(scanErrors);
 
             if (REPLHelper.IsExpression(tokens))
             {
@@ -66,12 +68,14 @@ namespace Lox
             }
 
             var (statements, parserErrors) = Parser.Parse(tokens);
+            errors.AddRange(parserErrors);
 
-            if (!hadError && parserErrors.Count == 0)
+            if (parserErrors.Count == 0)
             {
-                var (locals, resolverErrors) = _resolver.Resolve(statements);
+                var (locals, resolveErrors) = _resolver.Resolve(statements);
+                errors.AddRange(resolveErrors);
 
-                if (!hadError && resolverErrors.Count == 0)
+                if (!hadError && resolveErrors.Count == 0)
                 {
                     if (REPLHelper.TryGetSingleExpression(statements, out Expr? expression))
                     {
@@ -83,30 +87,11 @@ namespace Lox
                     }
                 }
             }
-            else if (parserErrors.Count > 0)
+
+            foreach (var error in errors)
             {
-                foreach (var error in parserErrors)
-                {
-                    Console.Error.WriteLine(error.ToString());
-                }
+                Console.Error.WriteLine(error.ToString());
             }
-        }
-
-        public static void Error(int line, string message)
-        {
-            Report(line, "", message);
-        }
-
-        public static void Error(Token token, string message)
-        {
-            var where = token.TokenType == TokenType.EOF ? " at end" : $"at '{token.Lexeme}'";
-            Report(token.Line, where, message);
-        }
-
-        private static void Report(int line, string where, string message)
-        {
-            Console.Error.WriteLine($"[line {line} ] Error {where} : {message}");
-            hadError = true;
         }
 
         public static void RuntimeError(RuntimeException re)
@@ -118,18 +103,29 @@ namespace Lox
 
     public struct LoxError
     {
-        public string Where => Token.TokenType == TokenType.EOF ? " at end" : $"at '{Token.Lexeme}'";
+        public string Where => Token.TokenType == TokenType.NONE ? "" :
+                    Token.TokenType == TokenType.EOF ? " at end" : $"at '{Token.Lexeme}'";
 
-        public string ErrorText => $"[line {Token.Line} ] Error {Where} : {Message}";
+        public string ErrorText => $"[line {Line} ] Error {Where} : {Message}";
 
         public readonly Token Token;
 
         public readonly string Message;
 
+        public readonly int Line;
+
+        public LoxError(int line, string message)
+        {
+            Message = message;
+            Token = new Token();
+            Line = line;
+        }
+
         public LoxError(Token token, string message)
         {
             Message = message;
             Token = token;
+            Line = token.Line;
         }
 
         public override string ToString() => ErrorText;

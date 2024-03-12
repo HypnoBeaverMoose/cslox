@@ -5,6 +5,7 @@ namespace Lox
         private static string _source = "";
 
         private static readonly List<Token> _tokens = new();
+        private static readonly List<LoxError> _errors = new();
 
         private static bool IsAtEnd => _current >= _source.Length;
         private static int _start;
@@ -13,12 +14,14 @@ namespace Lox
 
         public static IReadOnlyList<Token> Tokens => _tokens;
 
-        public static List<Token> Scan(string text)
+        public static (List<Token>, List<LoxError>) Scan(string text)
         {
             _line = 1;
             _source = text;
             _start = _current = 0;
             _tokens.Clear();
+            _errors.Clear();
+
             while (!IsAtEnd)
             {
                 _start = _current;
@@ -27,7 +30,7 @@ namespace Lox
 
             _tokens.Add(new Token(TokenType.EOF, "", literal: null, _line));
 
-            return new List<Token>(_tokens);
+            return (new List<Token>(_tokens), new List<LoxError>(_errors));
         }
 
         private static void ScanToken()
@@ -87,7 +90,7 @@ namespace Lox
                     }
                     else
                     {
-                        Lox.Error(_line, $"Unexpected character {c}");
+                        LogError(_line, $"Unexpected character {c}");
                     }
                     break;
             }
@@ -180,7 +183,7 @@ namespace Lox
 
             if (IsAtEnd)
             {
-                Lox.Error(_line, "Unterminated string.");
+                LogError(_line, "Unterminated string.");
                 return;
             }
 
@@ -224,6 +227,11 @@ namespace Lox
                 return true;
             }
             return false;
+        }
+
+        private static void LogError(int line, string message)
+        {
+            _errors.Add(new LoxError(line, message));
         }
     }
 }
