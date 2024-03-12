@@ -15,12 +15,13 @@ namespace Lox
         public Dictionary<Expr, int> Resolve(IReadOnlyList<Stmt> stmts)
         {
             _locals.Clear();
+
             foreach (var stmt in stmts)
             {
                 Resolve(stmt);
             }
 
-            return _locals;
+            return _locals.ToDictionary(l => l.Key, l => l.Value);
         }
 
         public object? VisitBlock(Stmt.Block stmt)
