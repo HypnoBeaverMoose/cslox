@@ -2,6 +2,8 @@ namespace Lox
 {
     public class Resolver : Expr.Visitor<object?>, Stmt.Visitor<object?>
     {
+        private readonly List<LoxError> _errors = new();
+
         private readonly Dictionary<Expr, int> _locals = new();
 
         private FunctionType _currentFunction = FunctionType.NONE;
@@ -12,16 +14,18 @@ namespace Lox
 
         private readonly List<Dictionary<Token, VariableState>> _scopes = new();
 
-        public Dictionary<Expr, int> Resolve(IReadOnlyList<Stmt> stmts)
+        public (Dictionary<Expr, int>, List<LoxError>) Resolve(IReadOnlyList<Stmt> stmts)
         {
             _locals.Clear();
+            _errors.Clear();
 
             foreach (var stmt in stmts)
             {
                 Resolve(stmt);
             }
 
-            return _locals.ToDictionary(l => l.Key, l => l.Value);
+            return (_locals.ToDictionary(l => l.Key, l => l.Value), 
+                                        new List<LoxError>(_errors));
         }
 
         public object? VisitBlock(Stmt.Block stmt)
@@ -83,7 +87,7 @@ namespace Lox
         {
             if (_currentFunction == FunctionType.NONE)
             {
-                Lox.Error(stmt.Keyword, "Can't return from top level code");
+                LogError(stmt.Keyword, "Can't return from top level code");
             }
 
             if (stmt.Value != null)
@@ -91,7 +95,7 @@ namespace Lox
                 Resolve(stmt.Value);
                 if (_currentFunction == FunctionType.INITIALIZER)
                 {
-                    Lox.Error(stmt.Keyword, "Can't return a value from init");
+                    LogError(stmt.Keyword, "Can't return a value from init");
                 }
             }
             return null;
@@ -128,7 +132,7 @@ namespace Lox
         {
             if (_nestedLoops == 0)
             {
-                Lox.Error(stmt.Keyword, "Expect 'break;' statements only inside loops");
+                LogError(stmt.Keyword, "Expect 'break;' statements only inside loops");
             }
             return null;
         }
@@ -169,7 +173,7 @@ namespace Lox
         {
             if (_scopes.Count > 0 && _scopes[^1].TryGetValue(expr.Name, out VariableState val) && val == VariableState.DECLARED)
             {
-                Lox.Error(expr.Name, "Can't read local variable in it's own initializer");
+                LogError(expr.Name, "Can't read local variable in it's own initializer");
             }
 
             ResolveLocal(expr, expr.Name);
@@ -219,7 +223,7 @@ namespace Lox
             {
                 if (!_scopes[^1].TryAdd(name, VariableState.DECLARED))
                 {
-                    Lox.Error(name, "Already a variable with this name in this scope.");
+                    LogError(name, "Already a variable with this name in this scope.");
                 }
             }
         }
@@ -243,7 +247,7 @@ namespace Lox
             {
                 if (kvp.Value != VariableState.USED)
                 {
-                    Lox.Error(kvp.Key, "Unused variable detected");
+                    LogError(kvp.Key, "Unused variable detected");
                 }
             }
             _scopes.RemoveAt(_scopes.Count - 1);
@@ -298,11 +302,16 @@ namespace Lox
         {
             if (_currentClass == ClassType.NONE)
             {
-                Lox.Error(expr.Keyword, "Can't use 'this' outside of class");
+                LogError(expr.Keyword, "Can't use 'this' outside of class");
             }
 
             ResolveLocal(expr, expr.Keyword);
             return null;
+        }
+
+        private void LogError(Token token, string message)
+        {
+            _errors.Add(new LoxError(token, message));
         }
 
         private struct ScopeBlock : IDisposable

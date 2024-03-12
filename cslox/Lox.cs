@@ -65,13 +65,13 @@ namespace Lox
                 REPLHelper.FixExpression(tokens);
             }
 
-            var (statements, errors) = Parser.Parse(tokens);
+            var (statements, parserErrors) = Parser.Parse(tokens);
 
-            if (!hadError && errors.Count == 0)
+            if (!hadError && parserErrors.Count == 0)
             {
-                var locals = _resolver.Resolve(statements);
+                var (locals, resolverErrors) = _resolver.Resolve(statements);
 
-                if (!hadError)
+                if (!hadError && resolverErrors.Count == 0)
                 {
                     if (REPLHelper.TryGetSingleExpression(statements, out Expr? expression))
                     {
@@ -83,9 +83,9 @@ namespace Lox
                     }
                 }
             }
-            else if(errors.Count > 0)
+            else if (parserErrors.Count > 0)
             {
-                foreach (var error in errors)
+                foreach (var error in parserErrors)
                 {
                     Console.Error.WriteLine(error.ToString());
                 }
@@ -126,7 +126,7 @@ namespace Lox
 
         public readonly string Message;
 
-        public LoxError(string message, Token token)
+        public LoxError(Token token, string message)
         {
             Message = message;
             Token = token;

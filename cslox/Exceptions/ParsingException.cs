@@ -10,7 +10,7 @@ namespace Lox
 
         public ParsingException(Token token, string message)
         {
-            Error = new LoxError(message, token);
+            Error = new LoxError(token, message);
         }
 
         public ParsingException(string? message) : base(message)
