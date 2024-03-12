@@ -2,19 +2,18 @@ using System.Buffers;
 
 namespace Lox
 {
-    public class Parser
+    public static class Parser
     {
-        private readonly List<Token> _tokens;
-        private int _current = 0;
-        private bool _isAtEnd => Peek().TokenType == TokenType.EOF;
+        private static readonly List<Token> _tokens = new();
+        private static int _current = 0;
+        private static bool _isAtEnd => Peek().TokenType == TokenType.EOF;
 
-        public Parser(List<Token> tokens)
+        public static List<Stmt> Parse(List<Token> tokens)
         {
-            _tokens = new List<Token>(tokens);
-        }
+            _current = 0;
+            _tokens.Clear();
+            _tokens.AddRange(new List<Token>(tokens));
 
-        public List<Stmt> Parse()
-        {
             var statements = new List<Stmt>();
             while (!_isAtEnd)
             {
@@ -24,7 +23,7 @@ namespace Lox
             return statements;
         }
 
-        private Stmt Declaration()
+        private static Stmt Declaration()
         {
             try
             {
@@ -48,7 +47,7 @@ namespace Lox
             }
         }
 
-        private Stmt.Function FunctionDeclaration(string kind)
+        private static Stmt.Function FunctionDeclaration(string kind)
         {
             var name = Consume(TokenType.IDENTIFIER, $"Expect, {kind} name.");
 
@@ -73,7 +72,7 @@ namespace Lox
             return new Stmt.Function { Name = name, Parameters = parameters, Body = body };
         }
 
-        private Stmt VariableDeclaration()
+        private static Stmt VariableDeclaration()
         {
             var name = Consume(TokenType.IDENTIFIER, "Expect variable name");
 
@@ -84,7 +83,7 @@ namespace Lox
             return new Stmt.Var { Name = name, Initializer = initializer };
         }
 
-        private Stmt Statement()
+        private static Stmt Statement()
         {
             if (Match(TokenType.RETURN))
             {
@@ -124,7 +123,7 @@ namespace Lox
             }
         }
 
-        private Stmt ClassDeclaration()
+        private static Stmt ClassDeclaration()
         {
             Token name = Consume(TokenType.IDENTIFIER, "Expect class name.");
 
@@ -141,14 +140,14 @@ namespace Lox
             return new Stmt.Class { Name = name, Methods = methods };
         }
 
-        private Stmt BreakStatement()
+        private static Stmt BreakStatement()
         {
             var token = Previous();
             Consume(TokenType.SEMICOLON, "Expect ';' after break");
             return new Stmt.Break { Keyword = token };
         }
 
-        private Stmt ReturnStatement()
+        private static Stmt ReturnStatement()
         {
             var keyword = Previous();
             var value = Check(TokenType.SEMICOLON) ? null : Expression();
@@ -157,7 +156,7 @@ namespace Lox
             return new Stmt.Return { Keyword = keyword, Value = value };
         }
 
-        private Stmt ForStatement()
+        private static Stmt ForStatement()
         {
             Consume(TokenType.LEFT_PAREN, "Expect '(' after 'for'");
             Stmt init = Match(TokenType.VAR) ? VariableDeclaration() :
@@ -199,7 +198,7 @@ namespace Lox
         }
 
 
-        private Stmt WhileStatement()
+        private static Stmt WhileStatement()
         {
             Consume(TokenType.LEFT_PAREN, "Expect '(' after 'while'");
             var condition = SingleExpression();
@@ -210,7 +209,7 @@ namespace Lox
             return new Stmt.While { Condition = condition, Body = body };
         }
 
-        private List<Stmt> BlockStatement()
+        private static List<Stmt> BlockStatement()
         {
             var statements = new List<Stmt>();
 
@@ -222,7 +221,7 @@ namespace Lox
 
             return statements;
         }
-        private Stmt IfStatement()
+        private static Stmt IfStatement()
         {
             Consume(TokenType.LEFT_PAREN, "Expect '('");
             var condition = SingleExpression();
@@ -240,21 +239,21 @@ namespace Lox
             return new Stmt.If { Condition = condition, ThenBranch = thenBranch, ElseBranch = elseBranch };
         }
 
-        private Stmt ExpressionStatement()
+        private static Stmt ExpressionStatement()
         {
             var expression = Expression();
             Consume(TokenType.SEMICOLON, "; expected");
             return new Stmt.Expression { Expr = expression };
         }
 
-        private Stmt PrintStatement()
+        private static Stmt PrintStatement()
         {
             var expression = Expression();
             Consume(TokenType.SEMICOLON, "; expected");
             return new Stmt.Print { Expr = expression };
         }
 
-        private Expr Expression()
+        private static Expr Expression()
         {
             var expr = SingleExpression();
             while (Match(TokenType.COMMA))
@@ -266,12 +265,12 @@ namespace Lox
             return expr;
         }
 
-        private Expr SingleExpression()
+        private static Expr SingleExpression()
         {
             return Assignment();
         }
 
-        private Expr Assignment()
+        private static Expr Assignment()
         {
             var expr = Ternary();
 
@@ -296,7 +295,7 @@ namespace Lox
             return expr;
         }
 
-        private Expr Ternary()
+        private static Expr Ternary()
         {
             var expr = LogicalOr();
             if (Match(TokenType.QUESTION))
@@ -312,7 +311,7 @@ namespace Lox
             return expr;
         }
 
-        private Expr LogicalOr()
+        private static Expr LogicalOr()
         {
             var expr = LogicalAnd();
             while (Match(TokenType.OR))
@@ -324,7 +323,7 @@ namespace Lox
             return expr;
         }
 
-        private Expr LogicalAnd()
+        private static Expr LogicalAnd()
         {
             var expr = Equality();
             while (Match(TokenType.AND))
@@ -336,7 +335,7 @@ namespace Lox
             return expr;
         }
 
-        private Expr Equality()
+        private static Expr Equality()
         {
             var expr = Comparison();
             while (Match(TokenType.BANG_EQUAL, TokenType.BANG))
@@ -348,7 +347,7 @@ namespace Lox
             return expr;
         }
 
-        private Expr Comparison()
+        private static Expr Comparison()
         {
             var expr = Term();
             while (Match(TokenType.GREATER, TokenType.GREATER_EQUAL, TokenType.LESS, TokenType.LESS_EQUAL))
@@ -360,7 +359,7 @@ namespace Lox
             return expr;
         }
 
-        private Expr Term()
+        private static Expr Term()
         {
             var expr = Factor();
             while (Match(TokenType.MINUS, TokenType.PLUS))
@@ -372,7 +371,7 @@ namespace Lox
             return expr;
         }
 
-        private Expr Factor()
+        private static Expr Factor()
         {
             var expr = Unary();
             while (Match(TokenType.SLASH, TokenType.STAR))
@@ -384,7 +383,7 @@ namespace Lox
             return expr;
         }
 
-        private Expr Unary()
+        private static Expr Unary()
         {
             if (Match(TokenType.BANG, TokenType.MINUS))
             {
@@ -396,7 +395,7 @@ namespace Lox
             return Call();
         }
 
-        private Expr Call()
+        private static Expr Call()
         {
             var expr = Primary();
 
@@ -420,7 +419,7 @@ namespace Lox
             return expr;
         }
 
-        private Expr FinishCall(Expr expr)
+        private static Expr FinishCall(Expr expr)
         {
             var arguments = new List<Expr>();
             if (!Check(TokenType.RIGHT_PAREN))
@@ -439,7 +438,7 @@ namespace Lox
             return new Expr.Call { Callee = expr, Arguments = arguments, Paren = parenthesis };
         }
 
-        private Expr Primary()
+        private static Expr Primary()
         {
             if (Match(TokenType.FALSE, TokenType.TRUE, TokenType.NIL,
                         TokenType.NUMBER, TokenType.STRING, TokenType.IDENTIFIER, TokenType.THIS))
@@ -473,7 +472,7 @@ namespace Lox
             throw Error(Peek(), "Expect expression");
         }
 
-        private Token Consume(TokenType type, string message)
+        private static Token Consume(TokenType type, string message)
         {
             if (Check(type))
             {
@@ -483,14 +482,13 @@ namespace Lox
             throw Error(Peek(), message);
         }
 
-        private Exception Error(Token token, string message)
+        private static Exception Error(Token token, string message)
         {
-            Lox.Error(token, message);
-            return new ParsingException();
+            return new ParsingException(token, message);
         }
 
         //TODO: Rename to MatchAny, Return (bool, Token)
-        public bool Match(params TokenType[] types)
+        private static bool Match(params TokenType[] types)
         {
             foreach (var type in types)
             {
@@ -503,7 +501,7 @@ namespace Lox
             return false;
         }
 
-        private bool Check(TokenType tokenType)
+        private static bool Check(TokenType tokenType)
         {
             if (!_isAtEnd)
             {
@@ -513,7 +511,7 @@ namespace Lox
             return false;
         }
 
-        private Token Advance()
+        private static Token Advance()
         {
             if (!_isAtEnd)
             {
@@ -523,7 +521,7 @@ namespace Lox
             return Previous();
         }
 
-        private void Synchronize()
+        private static void Synchronize()
         {
             Advance();
             while (!_isAtEnd)
@@ -550,8 +548,8 @@ namespace Lox
             }
         }
 
-        private Token Peek() => _tokens[_current];
+        private static Token Peek() => _tokens[_current];
 
-        private Token Previous() => _tokens[_current - 1];
+        private static Token Previous() => _tokens[_current - 1];
     }
 }

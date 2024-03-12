@@ -63,6 +63,11 @@ namespace Lox
                 REPLHelper.FixExpression(tokens);
             }
 
+            // try{
+            //     var statements = Parser.Parse(tokens);
+            //     var index = Resolver.Resolve(statements);
+            // }
+
             var statements = new Parser(tokens).Parse();
 
             if (!hadError)
@@ -105,6 +110,23 @@ namespace Lox
         {
             Console.Error.WriteLine(re.Message + $"\n [line{re.Token.Value.Line}]");
             hadRuntimeError = true;
+        }
+    }
+
+    public struct LoxError
+    {
+        public string Where => Token.TokenType == TokenType.EOF ? " at end" : $"at '{Token.Lexeme}'";
+
+        public string ErrorText => $"[line {Token.Line} ] Error {Where} : {Message}";
+
+        public readonly Token Token;
+
+        public readonly string Message;
+
+        public LoxError(string message, Token token)
+        {
+            Message = message;
+            Token = token;
         }
     }
 }
