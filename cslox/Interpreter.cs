@@ -13,7 +13,7 @@ namespace Lox
             Globals.Define("clock", new Clock());
         }
 
-        public void Interpret(IReadOnlyList<Stmt> statements, Dictionary<Expr, int> locals)
+        public void Interpret(IReadOnlyList<Stmt> statements, Dictionary<Expr, int> locals, List<LoxError> errors)
         {
             _locals.Clear();
             foreach (var local in locals)
@@ -30,7 +30,7 @@ namespace Lox
             }
             catch (RuntimeException re)
             {
-                Lox.RuntimeError(re);
+                errors.Add(new LoxError(re.Token, re.Message, LoxError.ErrorType.Runtime));
             }
         }
 

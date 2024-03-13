@@ -315,7 +315,7 @@ namespace Lox
 
         private void LogError(Token token, string message)
         {
-            _errors.Add(new LoxError(token, message));
+            _errors.Add(new LoxError(token, message, LoxError.ErrorType.Parse));
         }
 
         private struct ScopeBlock : IDisposable
