@@ -6,14 +6,13 @@ namespace Lox
         private static int _current = 0;
         private static bool _isAtEnd => Peek().TokenType == TokenType.EOF;
 
-        public static (List<Stmt>, List<LoxError>) Parse(List<Token> tokens)
+        public static List<Stmt> Parse(List<Token> tokens, List<LoxError> errors)
         {
             _current = 0;
             _tokens.Clear();
             _tokens.AddRange(new List<Token>(tokens));
 
             var statements = new List<Stmt>();
-            var errors = new List<LoxError>();
 
             while (!_isAtEnd)
             {
@@ -29,7 +28,7 @@ namespace Lox
                 }
             }
 
-            return (statements, errors);
+            return statements;
         }
 
         private static Stmt Declaration()

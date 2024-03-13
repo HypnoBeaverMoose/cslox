@@ -3,7 +3,6 @@ namespace Lox
     public class Resolver : Expr.Visitor<object?>, Stmt.Visitor<object?>
     {
         private readonly List<LoxError> _errors = new();
-
         private readonly Dictionary<Expr, int> _locals = new();
 
         private FunctionType _currentFunction = FunctionType.NONE;
@@ -14,18 +13,23 @@ namespace Lox
 
         private readonly List<Dictionary<Token, VariableState>> _scopes = new();
 
-        public (Dictionary<Expr, int>, List<LoxError>) Resolve(IReadOnlyList<Stmt> stmts)
+        public Dictionary<Expr, int> ResolveStatements(IReadOnlyList<Stmt> stmts, List<LoxError> errors)
         {
             _locals.Clear();
             _errors.Clear();
 
+            Resolve(stmts);
+
+            errors.AddRange(_errors);
+            return _locals.ToDictionary(l => l.Key, l => l.Value);
+        }
+
+        private void Resolve(IReadOnlyList<Stmt> stmts)
+        {
             foreach (var stmt in stmts)
             {
                 Resolve(stmt);
             }
-
-            return (_locals.ToDictionary(l => l.Key, l => l.Value), 
-                                        new List<LoxError>(_errors));
         }
 
         public object? VisitBlock(Stmt.Block stmt)

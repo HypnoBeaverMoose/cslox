@@ -59,38 +59,30 @@ namespace Lox
         private static void Run(string text)
         {
             var errors = new List<LoxError>();
-            var (tokens, scanErrors) = Scanner.Scan(text);
-            errors.AddRange(scanErrors);
 
-            if (REPLHelper.IsExpression(tokens))
+            var tokens = Scanner.Scan(text, errors);
+            if (errors.Count == 0)
             {
-                REPLHelper.FixExpression(tokens);
-            }
-
-            var (statements, parserErrors) = Parser.Parse(tokens);
-            errors.AddRange(parserErrors);
-
-            if (parserErrors.Count == 0)
-            {
-                var (locals, resolveErrors) = _resolver.Resolve(statements);
-                errors.AddRange(resolveErrors);
-
-                if (!hadError && resolveErrors.Count == 0)
+                var statements = Parser.Parse(tokens, errors);
+                if (errors.Count == 0)
                 {
-                    if (REPLHelper.TryGetSingleExpression(statements, out Expr? expression))
-                    {
-                        Console.WriteLine(_interpreter.Evaluate(expression));
-                    }
-                    else
+                    var locals = _resolver.ResolveStatements(statements, errors);
+                    if (errors.Count == 0)
                     {
                         _interpreter.Interpret(statements, locals);
                     }
                 }
             }
 
+            PrintErrors(errors);
+        }
+
+        private static void PrintErrors(List<LoxError> errors)
+        {
             foreach (var error in errors)
             {
                 Console.Error.WriteLine(error.ToString());
+
             }
         }
 
@@ -101,7 +93,7 @@ namespace Lox
         }
     }
 
-    public struct LoxError
+    public readonly struct LoxError
     {
         public string Where => Token.TokenType == TokenType.NONE ? "" :
                     Token.TokenType == TokenType.EOF ? " at end" : $"at '{Token.Lexeme}'";

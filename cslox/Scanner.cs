@@ -12,9 +12,7 @@ namespace Lox
         private static int _current;
         private static int _line;
 
-        public static IReadOnlyList<Token> Tokens => _tokens;
-
-        public static (List<Token>, List<LoxError>) Scan(string text)
+        public static List<Token> Scan(string text, List<LoxError> errors)
         {
             _line = 1;
             _source = text;
@@ -30,7 +28,9 @@ namespace Lox
 
             _tokens.Add(new Token(TokenType.EOF, "", literal: null, _line));
 
-            return (new List<Token>(_tokens), new List<LoxError>(_errors));
+            errors.AddRange(_errors);
+
+            return new List<Token>(_tokens);
         }
 
         private static void ScanToken()
