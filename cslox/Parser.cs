@@ -144,6 +144,13 @@ namespace Lox
         {
             Token name = Consume(TokenType.IDENTIFIER, "Expect class name.");
 
+            Expr.Variable? superclass = null;
+            if (Match(TokenType.LESS))
+            {
+                Consume(TokenType.IDENTIFIER, "Expect superclass name.");
+                superclass = new Expr.Variable { Name = Previous() };
+            }
+
             Consume(TokenType.LEFT_BRACE, "Expect '{' before class body.");
 
             var methods = new List<Stmt.Function>();
@@ -154,7 +161,7 @@ namespace Lox
 
             Consume(TokenType.RIGHT_BRACE, "Expect '{' after class body.");
 
-            return new Stmt.Class { Name = name, Methods = methods };
+            return new Stmt.Class { Name = name, Superclass = superclass, Methods = methods };
         }
 
         private static Stmt BreakStatement()

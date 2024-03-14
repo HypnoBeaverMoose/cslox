@@ -1,4 +1,4 @@
-Class : Token Name, List<Stmt.Function> Methods
+Class : Token Name, Expr.Variable Superclass, List<Stmt.Function> Methods
 If : Expr Condition, Stmt ThenBranch, Stmt? ElseBranch
 Block : List<Stmt> Statements
 Expression : Expr Expr

@@ -34,6 +34,8 @@ namespace Lox
         {
             public Token Name;
 
+            public Expr.Variable Superclass;
+
             public List<Stmt.Function> Methods;
 
 

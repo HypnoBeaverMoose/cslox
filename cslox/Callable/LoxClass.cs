@@ -10,10 +10,13 @@ namespace Lox
         public readonly string Name;
 
         private readonly Dictionary<string, LoxFunctionBase> _methods;
+        
+        public readonly LoxClass Superclass;
 
-        public LoxClass(string name, Dictionary<string, LoxFunctionBase> methods)
+        public LoxClass(string name, LoxClass superclass, Dictionary<string, LoxFunctionBase> methods)
         {
             Name = name;
+            Superclass = superclass;
             _methods = new Dictionary<string, LoxFunctionBase>(methods);
 
         }

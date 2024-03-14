@@ -1,3 +1,5 @@
+using System.Net.Mail;
+
 namespace Lox
 {
     public class Interpreter : Expr.Visitor<object?>, Stmt.Visitor<object?>
@@ -352,9 +354,20 @@ namespace Lox
 
         public object? VisitClass(Stmt.Class stmt)
         {
+            object? superclass = null;
+            if (stmt.Superclass != null)
+            {
+                superclass = Evaluate(stmt.Superclass);
+                if(superclass is not LoxClass loxSuperclass)
+                {
+                    throw new RuntimeException(stmt.Superclass.Name, "Superclass must be a class.");
+                }
+            }
+
             _environment.Define(stmt.Name.Lexeme, null);
 
             var loxClass = new LoxClass(stmt.Name.Lexeme,
+                            superclass as LoxClass,
                             stmt.Methods.ToDictionary(m => m.Name.Lexeme,
                                                         m => LoxFunctionBase.Create(m, _environment)));
 

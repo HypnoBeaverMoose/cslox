@@ -272,6 +272,15 @@ namespace Lox
             Declare(stmt.Name);
             Define(stmt.Name);
 
+            if (stmt.Superclass != null)
+            {
+                if (stmt.Name.Lexeme == stmt.Superclass.Name.Lexeme)
+                {
+                    LogError(stmt.Superclass.Name, "A class can't inherit from itself.");
+                }
+                Resolve(stmt.Superclass);
+            }
+
             using (new ClassBlock(this, ClassType.CLASS))
             {
                 using (new ScopeBlock(this))
