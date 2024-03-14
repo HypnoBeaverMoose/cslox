@@ -31,6 +31,24 @@ namespace Lox
             return statements;
         }
 
+        public static Stmt ParseExpression(List<Token> tokens, List<LoxError> errors)
+        {
+            _current = 0;
+            _tokens.Clear();
+            _tokens.AddRange(new List<Token>(tokens));
+
+            try
+            {
+                var expression = Expression();
+                return new Stmt.Expression { Expr = expression };
+            }
+            catch (ParsingException e)
+            {
+                errors.Add(e.Error);
+                return null;
+            }
+        }
+
         private static Stmt Declaration()
         {
             if (Match(TokenType.VAR))

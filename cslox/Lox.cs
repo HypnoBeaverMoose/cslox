@@ -2,11 +2,8 @@
 {
     public static class Lox
     {
-        public enum RunResult { Success, ParseError, RuntimeError }
-
-        private static Interpreter _interpreter = new();
-
-        private static Resolver _resolver = new();
+        private readonly static REPL _repl = new(PrintErrors);
+        private readonly static FileEvaluator _eval = new(PrintErrors);
 
         public static void Main(string[] args)
         {
@@ -25,23 +22,9 @@
             }
         }
 
-        private static void RunPrompt()
-        {
-            string? line = null;
-            do
-            {
-                Console.Write(">");
-                line = Console.ReadLine();
-                if (line != null)
-                {
-                    Run(line);
-                }
-            } while (line != null);
-        }
-
         private static void RunFile(string filename)
         {
-            var result = Run(System.IO.File.ReadAllText(filename));
+            var result = _eval.Run(System.IO.File.ReadAllText(filename));
 
             switch (result)
             {
@@ -54,28 +37,18 @@
             }
         }
 
-        private static RunResult Run(string text)
+        private static void RunPrompt()
         {
-            var errors = new List<LoxError>();
-            var tokens = Scanner.Scan(text, errors);
-            if (errors.Count == 0)
+            string? line;
+            do
             {
-                var statements = Parser.Parse(tokens, errors);
-                if (errors.Count == 0)
+                Console.Write(">");
+                line = Console.ReadLine();
+                if (line != null)
                 {
-                    var locals = _resolver.ResolveStatements(statements, errors);
-                    if (errors.Count == 0)
-                    {
-                        _interpreter.Interpret(statements, locals, errors);
-                    }
+                    _repl.Run(line);
                 }
-            }
-
-            PrintErrors(errors);
-
-            return errors.Count > 0 ?
-            errors.Any(e => e.Type == LoxError.ErrorType.Runtime) ?
-                            RunResult.RuntimeError : RunResult.ParseError : RunResult.Success;
+            } while (line != null);
         }
 
         private static void PrintErrors(List<LoxError> errors)
