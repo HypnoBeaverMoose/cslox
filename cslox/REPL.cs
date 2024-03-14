@@ -11,13 +11,22 @@ namespace Lox
             var tokens = Scanner.Scan(text, errors);
             if (errors.Count == 0)
             {
-                var expression = new List<Stmt>() { Parser.ParseExpression(tokens, errors) };
+                var expression = Parser.ParseExpression(tokens, errors);
                 if (errors.Count == 0)
                 {
-                    var locals = _resolver.ResolveStatements(expression, errors);
+                    Console.WriteLine(_interpreter.Evaluate(expression));
+                }
+                else
+                {
+                    errors.Clear();
+                    var statements = Parser.Parse(tokens, errors);
                     if (errors.Count == 0)
                     {
-                        _interpreter.Interpret(expression, locals, errors);
+                        var locals = _resolver.ResolveStatements(statements, errors);
+                        if (errors.Count == 0)
+                        {
+                            _interpreter.Interpret(statements, locals, errors);
+                        }
                     }
                 }
             }

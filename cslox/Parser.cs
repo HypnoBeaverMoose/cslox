@@ -31,7 +31,7 @@ namespace Lox
             return statements;
         }
 
-        public static Stmt ParseExpression(List<Token> tokens, List<LoxError> errors)
+        public static Expr ParseExpression(List<Token> tokens, List<LoxError> errors)
         {
             _current = 0;
             _tokens.Clear();
@@ -39,8 +39,7 @@ namespace Lox
 
             try
             {
-                var expression = Expression();
-                return new Stmt.Expression { Expr = expression };
+                return Expression();
             }
             catch (ParsingException e)
             {
