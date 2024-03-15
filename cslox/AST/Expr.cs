@@ -24,6 +24,8 @@ namespace Lox
 
             T VisitSet(Set expr);
 
+            T VisitSuper(Super expr);
+
             T VisitThis(This expr);
 
             T VisitUnary(Unary expr);
@@ -173,6 +175,21 @@ namespace Lox
             public override T Accept<T>(Visitor<T> visitor)
             {
                 return visitor.VisitSet(this);
+            }
+        }
+
+
+        public class Super : Expr
+        {
+            public Token Keyword;
+
+            public Token Method;
+
+
+
+            public override T Accept<T>(Visitor<T> visitor)
+            {
+                return visitor.VisitSuper(this);
             }
         }
 

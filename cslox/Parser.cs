@@ -493,6 +493,15 @@ namespace Lox
                 return new Expr.Grouping { Expression = expression };
             }
 
+            if (Match(TokenType.SUPER))
+            {
+                var keyword = Previous();
+                Consume(TokenType.DOT, "Expect '.' after super.");
+                var method = Consume(TokenType.IDENTIFIER, "Expect superclass method name");
+                return new Expr.Super { Keyword = keyword, Method = method };
+            }
+
+
             throw Error(Peek(), "Expect expression");
         }
 

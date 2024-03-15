@@ -10,7 +10,7 @@ namespace Lox
         public readonly string Name;
 
         private readonly Dictionary<string, LoxFunctionBase> _methods;
-        
+
         public readonly LoxClass Superclass;
 
         public LoxClass(string name, LoxClass superclass, Dictionary<string, LoxFunctionBase> methods)
@@ -23,14 +23,15 @@ namespace Lox
 
         public bool TryGetMethod(string name, out LoxFunctionBase? loxFunction)
         {
-            return _methods.TryGetValue(name, out loxFunction);
+            return _methods.TryGetValue(name, out loxFunction) ||
+                    (Superclass?.TryGetMethod(name, out loxFunction) ?? false);
         }
 
         public object Call(Interpreter interpreter, List<object?> arguments)
         {
-            var instance =  new LoxInstance(this);
+            var instance = new LoxInstance(this);
 
-            if(TryGetMethod(_initMethodName, out LoxFunctionBase? initMethod))
+            if (TryGetMethod(_initMethodName, out LoxFunctionBase? initMethod))
             {
                 initMethod?.Bind(instance).Call(interpreter, arguments);
             }

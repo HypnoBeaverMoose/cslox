@@ -1,11 +1,9 @@
-class Bacon 
-{
-  init() 
-  {
-    this.word = "word";
+class Doughnut {
+  cook() {
+    print "Fry until golden brown.";
   }
 }
 
-var bacon = Bacon();
+class BostonCream < Doughnut {}
 
-print bacon.word;
+BostonCream().cook();
