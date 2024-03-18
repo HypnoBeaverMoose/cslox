@@ -370,7 +370,7 @@ namespace Lox
             if (stmt.Superclass != null)
             {
                 _environment = new Environment(_environment);
-                _environment.Define(stmt.Superclass.Name.Lexeme, superclass);
+                _environment.Define("super", superclass);
             }
 
             var loxClass = new LoxClass(stmt.Name.Lexeme,
@@ -427,7 +427,7 @@ namespace Lox
             var thisToken = new Token(TokenType.THIS, "this", null, 0);
             var thisObj = _environment.GetAt(thisToken, distance - 1) as LoxInstance;
 
-            if (superclass.TryGetMethod(expr.Method.Lexeme, out LoxFunctionBase? loxFunction)
+            if (superclass.TryGetMethod(expr.Method.Lexeme, out LoxFunctionBase? loxFunction))
             {
                 return loxFunction?.Bind(thisObj);
             }

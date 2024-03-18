@@ -272,6 +272,8 @@ namespace Lox
             Declare(stmt.Name);
             Define(stmt.Name);
 
+            var classType = ClassType.CLASS;
+
             if (stmt.Superclass != null)
             {
                 if (stmt.Name.Lexeme == stmt.Superclass.Name.Lexeme)
@@ -282,10 +284,11 @@ namespace Lox
 
                 //Begin Super Scope
                 BeginScope();
-                _scopes[^1].Add(stmt.Superclass.Name, VariableState.DEFINED);
+                _scopes[^1].Add(new Token(TokenType.SUPER, "super", "super", -1), VariableState.USED);
+                classType = ClassType.SUBCLASS;
             }
 
-            using (new ClassBlock(this, ClassType.CLASS))
+            using (new ClassBlock(this, classType))
             {
                 using (new ScopeBlock(this))
                 {
@@ -339,6 +342,14 @@ namespace Lox
 
         public object? VisitSuper(Expr.Super expr)
         {
+            if (_currentClass != ClassType.SUBCLASS)
+            {
+                var message = _currentClass == ClassType.NONE ? 
+                "Can't use 'super' outside of a class." : 
+                "Can't use 'super' in a class with no superclass.";
+                LogError(expr.Keyword, message);
+
+            }
             ResolveLocal(expr, expr.Keyword);
             return null;
         }
@@ -422,7 +433,8 @@ namespace Lox
         private enum ClassType
         {
             NONE,
-            CLASS
+            CLASS,
+            SUBCLASS
         }
 
 
