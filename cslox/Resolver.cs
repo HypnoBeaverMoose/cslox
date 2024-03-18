@@ -279,6 +279,10 @@ namespace Lox
                     LogError(stmt.Superclass.Name, "A class can't inherit from itself.");
                 }
                 Resolve(stmt.Superclass);
+
+                //Begin Super Scope
+                BeginScope();
+                _scopes[^1].Add(stmt.Superclass.Name, VariableState.DEFINED);
             }
 
             using (new ClassBlock(this, ClassType.CLASS))
@@ -294,6 +298,12 @@ namespace Lox
                                                 FunctionType.INITIALIZER : FunctionType.METHOD);
                     }
                 }
+            }
+
+            if (stmt.Superclass != null)
+            {
+                //End Super Scope
+                EndScope();
             }
             return null;
         }
@@ -325,6 +335,12 @@ namespace Lox
         private void LogError(Token token, string message)
         {
             _errors.Add(new LoxError(token, message, LoxError.ErrorType.Parse));
+        }
+
+        public object? VisitSuper(Expr.Super expr)
+        {
+            ResolveLocal(expr, expr.Keyword);
+            return null;
         }
 
         private struct ScopeBlock : IDisposable

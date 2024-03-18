@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Net.Mail;
 
 namespace Lox
@@ -358,7 +359,7 @@ namespace Lox
             if (stmt.Superclass != null)
             {
                 superclass = Evaluate(stmt.Superclass);
-                if(superclass is not LoxClass loxSuperclass)
+                if (superclass is not LoxClass loxSuperclass)
                 {
                     throw new RuntimeException(stmt.Superclass.Name, "Superclass must be a class.");
                 }
@@ -366,10 +367,23 @@ namespace Lox
 
             _environment.Define(stmt.Name.Lexeme, null);
 
+            if (stmt.Superclass != null)
+            {
+                _environment = new Environment(_environment);
+                _environment.Define(stmt.Superclass.Name.Lexeme, superclass);
+            }
+
             var loxClass = new LoxClass(stmt.Name.Lexeme,
                             superclass as LoxClass,
                             stmt.Methods.ToDictionary(m => m.Name.Lexeme,
                                                         m => LoxFunctionBase.Create(m, _environment)));
+
+
+            if (stmt.Superclass != null)
+            {
+                Debug.Assert(_environment.Parent != null);
+                _environment = _environment.Parent;
+            }
 
             _environment.Put(stmt.Name, loxClass);
             return null;
@@ -403,6 +417,24 @@ namespace Lox
         public object? VisitThis(Expr.This expr)
         {
             return LookUpVariable(expr.Keyword, expr);
+        }
+
+        public object? VisitSuper(Expr.Super expr)
+        {
+            int distance = _locals[expr];
+            var superclass = _environment.GetAt(expr.Keyword, distance) as LoxClass;
+
+            var thisToken = new Token(TokenType.THIS, "this", null, 0);
+            var thisObj = _environment.GetAt(thisToken, distance - 1) as LoxInstance;
+
+            if (superclass.TryGetMethod(expr.Method.Lexeme, out LoxFunctionBase? loxFunction)
+            {
+                return loxFunction?.Bind(thisObj);
+            }
+            else
+            {
+                throw new RuntimeException(expr.Method, $"Undefined property '{expr.Method.Lexeme}'");
+            }
         }
     }
 }
