@@ -7,7 +7,7 @@ namespace Lox
     {
         public readonly Environment Globals = new();
 
-        private Dictionary<Expr, int> _locals = new();
+        private Dictionary<Expr, int> _resolutions = new();
         private Environment _environment;
 
         public Interpreter()
@@ -16,12 +16,12 @@ namespace Lox
             Globals.Define("clock", new Clock());
         }
 
-        public void Interpret(IReadOnlyList<Stmt> statements, Dictionary<Expr, int> locals, List<LoxError> errors)
+        public void Interpret(IReadOnlyList<Stmt> statements, Dictionary<Expr, int> resolutions, List<LoxError> errors)
         {
-            _locals.Clear();
-            foreach (var local in locals)
+            _resolutions.Clear();
+            foreach (var local in resolutions)
             {
-                _locals.Add(local.Key, local.Value);
+                _resolutions.Add(local.Key, local.Value);
             }
 
             try
@@ -291,7 +291,7 @@ namespace Lox
         {
             var value = Evaluate(expr.Value);
 
-            if (_locals.TryGetValue(expr, out int distance))
+            if (_resolutions.TryGetValue(expr, out int distance))
             {
                 _environment.PutAt(distance, expr.Name, value);
             }
@@ -343,7 +343,7 @@ namespace Lox
 
         private object? LookUpVariable(Token name, Expr expr)
         {
-            if (_locals.TryGetValue(expr, out int distance))
+            if (_resolutions.TryGetValue(expr, out int distance))
             {
                 return _environment.GetAt(name, distance);
             }
@@ -421,7 +421,7 @@ namespace Lox
 
         public object? VisitSuper(Expr.Super expr)
         {
-            int distance = _locals[expr];
+            int distance = _resolutions[expr];
             var superclass = _environment.GetAt(expr.Keyword, distance) as LoxClass;
 
             var thisToken = new Token(TokenType.THIS, "this", null, 0);
