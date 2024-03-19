@@ -3,7 +3,7 @@ using System.Net.Mail;
 
 namespace Lox
 {
-    public class Interpreter : Expr.Visitor<object?>, Stmt.Visitor<object?>
+    public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<object>
     {
         public readonly Environment Globals = new();
 
@@ -59,7 +59,7 @@ namespace Lox
             }
         }
 
-        public object? VisitLogical(Expr.Logical expr)
+        public object VisitLogical(Expr.Logical expr)
         {
             var left = Evaluate(expr.Left);
             if (expr.Operator.TokenType == TokenType.OR && IsTruthy(left))
@@ -74,7 +74,7 @@ namespace Lox
             return Evaluate(expr.Right);
         }
 
-        public object? VisitIf(Stmt.If stmt)
+        public object VisitIf(Stmt.If stmt)
         {
             if (IsTruthy(Evaluate(stmt.Condition)))
             {
@@ -87,22 +87,22 @@ namespace Lox
             return null;
         }
 
-        public object? VisitFunction(Stmt.Function stmt)
+        public object VisitFunction(Stmt.Function stmt)
         {
             var function = LoxFunctionBase.Create(stmt, _environment);
             _environment.Define(stmt.Name.Lexeme, function);
             return null;
         }
 
-        public object? VisitBlock(Stmt.Block stmt)
+        public object VisitBlock(Stmt.Block stmt)
         {
             ExecuteBlock(stmt.Statements, new Environment(_environment));
             return null;
         }
 
-        public object? VisitVar(Stmt.Var stmt)
+        public object VisitVar(Stmt.Var stmt)
         {
-            object? value = null;
+            object value = null;
             if (stmt.Initializer != null)
             {
                 value = Evaluate(stmt.Initializer);
@@ -113,20 +113,20 @@ namespace Lox
         }
 
 
-        public object? VisitExpression(Stmt.Expression stmt)
+        public object VisitExpression(Stmt.Expression stmt)
         {
             Evaluate(stmt.Expr);
             return null;
         }
 
-        public object? VisitPrint(Stmt.Print stmt)
+        public object VisitPrint(Stmt.Print stmt)
         {
             var result = Evaluate(stmt.Expr);
             Console.WriteLine(result?.ToString());
             return null;
         }
 
-        public object? VisitWhile(Stmt.While stmt)
+        public object VisitWhile(Stmt.While stmt)
         {
             while (IsTruthy(Evaluate(stmt.Condition)))
             {
@@ -142,22 +142,22 @@ namespace Lox
             return null;
         }
 
-        public object? VisitLiteral(Expr.Literal expr)
+        public object VisitLiteral(Expr.Literal expr)
         {
             return expr.Value;
         }
 
-        public object? VisitVariable(Expr.Variable expr)
+        public object VisitVariable(Expr.Variable expr)
         {
             return LookUpVariable(expr.Name, expr);
         }
 
-        public object? VisitGrouping(Expr.Grouping expr)
+        public object VisitGrouping(Expr.Grouping expr)
         {
             return Evaluate(expr);
         }
 
-        public object? VisitUnary(Expr.Unary expr)
+        public object VisitUnary(Expr.Unary expr)
         {
             var result = Evaluate(expr);
             switch (expr.Operator.TokenType)
@@ -171,7 +171,7 @@ namespace Lox
             }
         }
 
-        public object? VisitBinary(Expr.Binary expr)
+        public object VisitBinary(Expr.Binary expr)
         {
             var left = Evaluate(expr.Left);
             var right = Evaluate(expr.Right);
@@ -261,7 +261,7 @@ namespace Lox
             }
         }
 
-        public object? VisitTernary(Expr.Ternary expr)
+        public object VisitTernary(Expr.Ternary expr)
         {
             var condition = IsTruthy(Evaluate(expr.Condition));
             var left = Evaluate(expr.Left);
@@ -270,7 +270,7 @@ namespace Lox
             return condition ? left : right;
         }
 
-        public object? VisitCall(Expr.Call expr)
+        public object VisitCall(Expr.Call expr)
         {
             var callee = Evaluate(expr.Callee);
             if (callee is not ILoxCallable loxCallable)
@@ -287,7 +287,7 @@ namespace Lox
             return loxCallable?.Call(this, arguments);
         }
 
-        public object? VisitAssign(Expr.Assign expr)
+        public object VisitAssign(Expr.Assign expr)
         {
             var value = Evaluate(expr.Value);
 
@@ -302,22 +302,22 @@ namespace Lox
             return value;
         }
 
-        public object? Evaluate(Expr expr)
+        public object Evaluate(Expr expr)
         {
             return expr.Accept(this);
         }
 
-        private bool IsTruthy(object? obj)
+        private bool IsTruthy(object obj)
         {
             return obj is bool truthVal ? truthVal : false;
         }
 
-        private bool IsEqual(object? left, object? right)
+        private bool IsEqual(object left, object right)
         {
             return left == null ? right == null : left.Equals(right);
         }
 
-        private T TryCast<T>(Token op, object? operand)
+        private T TryCast<T>(Token op, object operand)
         {
             if (operand is T result)
             {
@@ -329,19 +329,19 @@ namespace Lox
             }
         }
 
-        public object? VisitReturn(Stmt.Return stmt)
+        public object VisitReturn(Stmt.Return stmt)
         {
             var value = stmt.Value == null ? stmt.Value : Evaluate(stmt.Value);
 
             throw new ReturnException(value);
         }
 
-        public object? VisitBreak(Stmt.Break stmt)
+        public object VisitBreak(Stmt.Break stmt)
         {
             throw new BreakException();
         }
 
-        private object? LookUpVariable(Token name, Expr expr)
+        private object LookUpVariable(Token name, Expr expr)
         {
             if (_resolutions.TryGetValue(expr, out int distance))
             {
@@ -353,9 +353,9 @@ namespace Lox
             }
         }
 
-        public object? VisitClass(Stmt.Class stmt)
+        public object VisitClass(Stmt.Class stmt)
         {
-            object? superclass = null;
+            object superclass = null;
             if (stmt.Superclass != null)
             {
                 superclass = Evaluate(stmt.Superclass);
@@ -389,7 +389,7 @@ namespace Lox
             return null;
         }
 
-        public object? VisitGet(Expr.Get expr)
+        public object VisitGet(Expr.Get expr)
         {
             var obj = Evaluate(expr.Obj);
             if (obj is LoxInstance loxInstance)
@@ -400,7 +400,7 @@ namespace Lox
             throw new RuntimeException(expr.Name, "Only instances have properties.");
         }
 
-        public object? VisitSet(Expr.Set expr)
+        public object VisitSet(Expr.Set expr)
         {
             var target = Evaluate(expr.Obj);
 
@@ -414,20 +414,20 @@ namespace Lox
             throw new RuntimeException(expr.Name, "Only instances have fields.");
         }
 
-        public object? VisitThis(Expr.This expr)
+        public object VisitThis(Expr.This expr)
         {
             return LookUpVariable(expr.Keyword, expr);
         }
 
-        public object? VisitSuper(Expr.Super expr)
+        public object VisitSuper(Expr.Super expr)
         {
             int distance = _resolutions[expr];
-            var superclass = _environment.GetAt(expr.Keyword, distance) as LoxClass;
+            var superclass = (LoxClass)_environment.GetAt(expr.Keyword, distance);
 
             var thisToken = new Token(TokenType.THIS, "this", null, 0);
             var thisObj = _environment.GetAt(thisToken, distance - 1) as LoxInstance;
 
-            if (superclass.TryGetMethod(expr.Method.Lexeme, out LoxFunctionBase? loxFunction))
+            if (superclass.TryGetMethod(expr.Method.Lexeme, out LoxFunctionBase loxFunction))
             {
                 return loxFunction?.Bind(thisObj);
             }

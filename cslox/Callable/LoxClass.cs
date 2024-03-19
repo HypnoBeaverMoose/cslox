@@ -27,7 +27,7 @@ namespace Lox
                     (Superclass?.TryGetMethod(name, out loxFunction) ?? false);
         }
 
-        public object Call(Interpreter interpreter, List<object?> arguments)
+        public object Call(Interpreter interpreter, List<object> arguments)
         {
             var instance = new LoxInstance(this);
 

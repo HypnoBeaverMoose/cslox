@@ -39,7 +39,7 @@
 
         private static void RunPrompt()
         {
-            string? line;
+            string line;
             do
             {
                 Console.Write(">");

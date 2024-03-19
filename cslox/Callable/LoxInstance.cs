@@ -5,16 +5,16 @@ namespace Lox
     {
         private readonly LoxClass _class;
 
-        private readonly Dictionary<string, object?> _properties = new();
+        private readonly Dictionary<string, object> _properties = new();
 
         public LoxInstance(LoxClass loxClass)
         {
             _class = loxClass;
         }
 
-        public object? Get(Token name)
+        public object Get(Token name)
         {
-            if (_properties.TryGetValue(name.Lexeme, out object? val))
+            if (_properties.TryGetValue(name.Lexeme, out object val))
             {
                 return val;
             }
@@ -33,7 +33,7 @@ namespace Lox
             return $"{_class.Name} instance";
         }
 
-        public void Set(Token name, object? value)
+        public void Set(Token name, object value)
         {
             _properties[name.Lexeme] = value;
         }

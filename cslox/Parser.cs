@@ -93,7 +93,7 @@ namespace Lox
         {
             var name = Consume(TokenType.IDENTIFIER, "Expect variable name");
 
-            Expr? initializer = Match(TokenType.EQUAL) ? Expression() : null;
+            Expr initializer = Match(TokenType.EQUAL) ? Expression() : null;
 
             Consume(TokenType.SEMICOLON, "Expect ';' after variable declaration");
 
@@ -144,7 +144,7 @@ namespace Lox
         {
             Token name = Consume(TokenType.IDENTIFIER, "Expect class name.");
 
-            Expr.Variable? superclass = null;
+            Expr.Variable superclass = null;
             if (Match(TokenType.LESS))
             {
                 Consume(TokenType.IDENTIFIER, "Expect superclass name.");
@@ -190,7 +190,7 @@ namespace Lox
             Consume(TokenType.SEMICOLON, "Expect ';' after condition");
 
 
-            Expr? increment = null;
+            Expr increment = null;
             if (!Check(TokenType.RIGHT_PAREN))
             {
                 increment = Expression();
@@ -253,7 +253,7 @@ namespace Lox
             Consume(TokenType.RIGHT_PAREN, "Expect ')'");
 
             var thenBranch = Statement();
-            Stmt? elseBranch = null;
+            Stmt elseBranch = null;
 
             if (Match(TokenType.ELSE))
             {

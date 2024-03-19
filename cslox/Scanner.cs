@@ -203,7 +203,7 @@ namespace Lox
             AddToken(tokenType, null);
         }
 
-        private static void AddToken(TokenType tokenType, object? literal)
+        private static void AddToken(TokenType tokenType, object literal)
         {
             var lexeme = _source.SubstringFromTo(_start, _current);
             _tokens.Add(new Token(tokenType, lexeme, literal, _line));

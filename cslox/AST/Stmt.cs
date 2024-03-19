@@ -53,7 +53,7 @@ namespace Lox
 
             public Stmt ThenBranch;
 
-            public Stmt? ElseBranch;
+            public Stmt ElseBranch;
 
 
 

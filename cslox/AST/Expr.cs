@@ -134,7 +134,7 @@ namespace Lox
 
         public class Literal : Expr
         {
-            public object? Value;
+            public object Value;
 
 
 

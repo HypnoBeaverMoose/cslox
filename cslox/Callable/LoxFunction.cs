@@ -7,7 +7,7 @@ namespace Lox
         {
         }
 
-        public override object Call(Interpreter interpreter, List<object?> arguments)
+        public override object Call(Interpreter interpreter, List<object> arguments)
         {
             var env = new Environment(_closure);
             for (int i = 0; i < arguments.Count; i++)

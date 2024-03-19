@@ -1,6 +1,6 @@
 namespace Lox
 {
-    public class Resolver : Expr.Visitor<object?>, Stmt.Visitor<object?>
+    public class Resolver : Expr.Visitor<object>, Stmt.Visitor<object>
     {
         private readonly List<LoxError> _errors = new();
         private readonly Dictionary<Expr, int> _locals = new();
@@ -32,7 +32,7 @@ namespace Lox
             }
         }
 
-        public object? VisitBlock(Stmt.Block stmt)
+        public object VisitBlock(Stmt.Block stmt)
         {
             using (new ScopeBlock(this))
             {
@@ -42,7 +42,7 @@ namespace Lox
             return null;
         }
 
-        public object? VisitVar(Stmt.Var stmt)
+        public object VisitVar(Stmt.Var stmt)
         {
             Declare(stmt.Name);
             if (stmt.Initializer != null)
@@ -54,7 +54,7 @@ namespace Lox
             return null;
         }
 
-        public object? VisitFunction(Stmt.Function stmt)
+        public object VisitFunction(Stmt.Function stmt)
         {
             Declare(stmt.Name);
             Define(stmt.Name);
@@ -63,13 +63,13 @@ namespace Lox
             return null;
         }
 
-        public object? VisitExpression(Stmt.Expression stmt)
+        public object VisitExpression(Stmt.Expression stmt)
         {
             Resolve(stmt.Expr);
             return null;
         }
 
-        public object? VisitIf(Stmt.If stmt)
+        public object VisitIf(Stmt.If stmt)
         {
             Resolve(stmt.Condition);
             Resolve(stmt.ThenBranch);
@@ -81,13 +81,13 @@ namespace Lox
             return null;
         }
 
-        public object? VisitPrint(Stmt.Print stmt)
+        public object VisitPrint(Stmt.Print stmt)
         {
             Resolve(stmt.Expr);
             return null;
         }
 
-        public object? VisitReturn(Stmt.Return stmt)
+        public object VisitReturn(Stmt.Return stmt)
         {
             if (_currentFunction == FunctionType.NONE)
             {
@@ -105,7 +105,7 @@ namespace Lox
             return null;
         }
 
-        public object? VisitWhile(Stmt.While stmt)
+        public object VisitWhile(Stmt.While stmt)
         {
             Resolve(stmt.Condition);
             using (new LoopBlock(this))
@@ -115,14 +115,14 @@ namespace Lox
             return null;
         }
 
-        public object? VisitBinary(Expr.Binary expr)
+        public object VisitBinary(Expr.Binary expr)
         {
             Resolve(expr.Left);
             Resolve(expr.Right);
             return null;
         }
 
-        public object? VisitCall(Expr.Call expr)
+        public object VisitCall(Expr.Call expr)
         {
             Resolve(expr.Callee);
             foreach (var arg in expr.Arguments)
@@ -132,7 +132,7 @@ namespace Lox
             return null;
         }
 
-        public object? VisitBreak(Stmt.Break stmt)
+        public object VisitBreak(Stmt.Break stmt)
         {
             if (_nestedLoops == 0)
             {
@@ -141,25 +141,25 @@ namespace Lox
             return null;
         }
 
-        public object? VisitGrouping(Expr.Grouping expr)
+        public object VisitGrouping(Expr.Grouping expr)
         {
             Resolve(expr.Expression);
             return null;
         }
 
-        public object? VisitLiteral(Expr.Literal expr)
+        public object VisitLiteral(Expr.Literal expr)
         {
             return null;
         }
 
-        public object? VisitLogical(Expr.Logical expr)
+        public object VisitLogical(Expr.Logical expr)
         {
             Resolve(expr.Left);
             Resolve(expr.Right);
             return null;
         }
 
-        public object? VisitTernary(Expr.Ternary expr)
+        public object VisitTernary(Expr.Ternary expr)
         {
             Resolve(expr.Condition);
             Resolve(expr.Left);
@@ -167,13 +167,13 @@ namespace Lox
             return null;
         }
 
-        public object? VisitUnary(Expr.Unary expr)
+        public object VisitUnary(Expr.Unary expr)
         {
             Resolve(expr.Right);
             return null;
         }
 
-        public object? VisitVariable(Expr.Variable expr)
+        public object VisitVariable(Expr.Variable expr)
         {
             if (_scopes.Count > 0 && _scopes[^1].TryGetValue(expr.Name, out VariableState val) && val == VariableState.DECLARED)
             {
@@ -185,7 +185,7 @@ namespace Lox
             return null;
         }
 
-        public object? VisitAssign(Expr.Assign expr)
+        public object VisitAssign(Expr.Assign expr)
         {
             Resolve(expr.Value);
             ResolveLocal(expr, expr.Name);
@@ -267,7 +267,7 @@ namespace Lox
             expr.Accept(this);
         }
 
-        public object? VisitClass(Stmt.Class stmt)
+        public object VisitClass(Stmt.Class stmt)
         {
             Declare(stmt.Name);
             Define(stmt.Name);
@@ -311,20 +311,20 @@ namespace Lox
             return null;
         }
 
-        public object? VisitGet(Expr.Get expr)
+        public object VisitGet(Expr.Get expr)
         {
             Resolve(expr.Obj);
             return null;
         }
 
-        public object? VisitSet(Expr.Set expr)
+        public object VisitSet(Expr.Set expr)
         {
             Resolve(expr.Value);
             Resolve(expr.Obj);
             return null;
         }
 
-        public object? VisitThis(Expr.This expr)
+        public object VisitThis(Expr.This expr)
         {
             if (_currentClass == ClassType.NONE)
             {
@@ -340,7 +340,7 @@ namespace Lox
             _errors.Add(new LoxError(token, message, LoxError.ErrorType.Parse));
         }
 
-        public object? VisitSuper(Expr.Super expr)
+        public object VisitSuper(Expr.Super expr)
         {
             if (_currentClass != ClassType.SUBCLASS)
             {

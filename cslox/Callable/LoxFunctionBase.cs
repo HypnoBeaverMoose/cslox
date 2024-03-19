@@ -21,7 +21,7 @@ namespace Lox
             return new LoxFunction(_function, env);
         }
 
-        public abstract object Call(Interpreter interpreter, List<object?> arguments);
+        public abstract object Call(Interpreter interpreter, List<object> arguments);
 
         public override string ToString()
         {

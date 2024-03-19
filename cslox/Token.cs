@@ -6,11 +6,11 @@ namespace Lox
 
         public readonly string Lexeme;
 
-        public object? Literal;
+        public object Literal;
 
         public readonly int Line;
 
-        public Token(TokenType type, string lexeme, object? literal, int line)
+        public Token(TokenType type, string lexeme, object literal, int line)
         {
             TokenType = type;
             Lexeme = lexeme;
@@ -23,7 +23,7 @@ namespace Lox
             return $"{TokenType} {Lexeme}, {Literal}";
         }
 
-        public override bool Equals(object? obj)
+        public override bool Equals(object obj)
         {
             if (obj is Token token)
             {
